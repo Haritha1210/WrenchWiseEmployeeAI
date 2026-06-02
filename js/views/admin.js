@@ -31,6 +31,10 @@ export function renderAdminView(container) {
                     <i data-lucide="users"></i>
                     <span>Manage Counselors</span>
                 </button>
+                <button class="admin-menu-item" data-sub="requests">
+                    <i data-lucide="user-plus"></i>
+                    <span>Access Requests</span>
+                </button>
                 <button class="admin-menu-item" data-sub="settings">
                     <i data-lucide="settings"></i>
                     <span>System Settings</span>
@@ -79,6 +83,8 @@ function renderActiveSubSection() {
         renderProgramsPanel(panel);
     } else if (activeSubSection === 'counselors') {
         renderCounselorsPanel(panel);
+    } else if (activeSubSection === 'requests') {
+        renderAccessRequestsPanel(panel);
     } else if (activeSubSection === 'settings') {
         renderSettingsPanel(panel);
     }
@@ -530,4 +536,104 @@ function renderSettingsPanel(container) {
             showToast("Gemini API key cleared. Using default key fallback.", "info");
         }
     });
+}
+
+/**
+ * 6. ACCESS REQUESTS PANEL
+ */
+function renderAccessRequestsPanel(container) {
+    let requests = getStorageItem('wrenchwise_access_requests', []);
+    
+    const renderTable = () => {
+        const tbody = document.getElementById('requests-table-body');
+        if (!tbody) return;
+
+        if (requests.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No pending access requests.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = requests.map(req => `
+            <tr>
+                <td style="color:var(--text-main); font-weight:600;">${req.name}</td>
+                <td style="color:var(--text-muted);">${req.email}</td>
+                <td style="color:var(--text-muted); font-size:0.85rem;">${new Date(req.date).toLocaleDateString()}</td>
+                <td>
+                    <button class="btn-icon-only success btn-approve-req" data-id="${req.id}" title="Approve Request">
+                        <i data-lucide="check-circle"></i>
+                    </button>
+                    <button class="btn-icon-only danger btn-reject-req" data-id="${req.id}" title="Reject Request" style="margin-left:8px;">
+                        <i data-lucide="x-circle"></i>
+                    </button>
+                </td>
+            </tr>
+        `).join('');
+
+        if (window.lucide) window.lucide.createIcons();
+
+        // Attach Approval Logic
+        tbody.querySelectorAll('.btn-approve-req').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const reqId = btn.getAttribute('data-id');
+                const reqIdx = requests.findIndex(r => r.id === reqId);
+                const request = requests[reqIdx];
+
+                // Add to counselors
+                let counselors = getStorageItem('wrenchwise_counselors', []);
+                counselors.push({
+                    id: "sc_" + Date.now(),
+                    name: request.name,
+                    email: request.email,
+                    active: true,
+                    assessmentsCount: 0,
+                    enrollmentsCount: 0
+                });
+                setStorageItem('wrenchwise_counselors', counselors);
+
+                // Remove request
+                requests.splice(reqIdx, 1);
+                setStorageItem('wrenchwise_access_requests', requests);
+                
+                showToast(request.name + " has been approved as a Sales Counselor.", "success");
+                renderTable();
+            });
+        });
+
+        // Attach Rejection Logic
+        tbody.querySelectorAll('.btn-reject-req').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const reqId = btn.getAttribute('data-id');
+                const reqIdx = requests.findIndex(r => r.id === reqId);
+                
+                requests.splice(reqIdx, 1);
+                setStorageItem('wrenchwise_access_requests', requests);
+                
+                showToast("Request rejected and removed.", "info");
+                renderTable();
+            });
+        });
+    };
+
+    container.innerHTML = \`
+        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Access Requests</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Review and approve access requests for new Sales Counselors.</p>
+        
+        <div class="glass-card" style="padding:0; border:none; box-shadow:none; overflow-x:auto;">
+            <table class="config-table">
+                <thead>
+                    <tr>
+                        <th>Requested Name</th>
+                        <th>Email Address</th>
+                        <th>Date Requested</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="requests-table-body">
+                    <!-- Rendered dynamically -->
+                </tbody>
+            </table>
+        </div>
+    \`;
+
+    renderTable();
 }

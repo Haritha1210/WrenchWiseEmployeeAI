@@ -66,23 +66,18 @@ function init() {
         setStorageItem('wrenchwise_leads', INITIAL_LEADS);
     }
 
-    // 2. Check for existing session (Auto-login bypass to remove login screen)
+    // 2. Check for existing session
     let savedUser = getStorageItem('wrenchwise_session_user', null);
     let savedRole = getStorageItem('wrenchwise_session_role', null);
-
-    if (!savedUser || !savedRole) {
-        const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
-        const defaultSC = counselors.find(c => c.active) || counselors[0];
-        savedUser = defaultSC;
-        savedRole = 'counselor';
-        setStorageItem('wrenchwise_session_user', savedUser);
-        setStorageItem('wrenchwise_session_role', savedRole);
-    }
 
     // Bind Core Shell UI Event Listeners
     bindShellEvents();
 
-    loginSuccess(savedUser, savedRole);
+    if (!savedUser || !savedRole) {
+        navigate('login');
+    } else {
+        loginSuccess(savedUser, savedRole);
+    }
 }
 
 /**
@@ -176,13 +171,17 @@ function loginSuccess(user, role) {
  * Logs out user and destroys sessions
  */
 function logout() {
-    // Reset/clear current session but immediately re-login default counselor to bypass login page completely
-    const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
-    const defaultSC = counselors.find(c => c.active) || counselors[0];
-    setStorageItem('wrenchwise_session_user', defaultSC);
-    setStorageItem('wrenchwise_session_role', 'counselor');
-    loginSuccess(defaultSC, 'counselor');
-    showToast("Session reset and logged in automatically.", "info");
+    localStorage.removeItem('wrenchwise_session_user');
+    localStorage.removeItem('wrenchwise_session_role');
+    currentUser = null;
+    currentRole = null;
+    
+    // Hide shell elements
+    document.getElementById('sidebar').classList.add('hidden');
+    document.querySelector('.app-header').classList.add('hidden');
+    
+    navigate('login');
+    showToast("Logged out successfully.", "info");
 }
 
 /**
@@ -244,10 +243,9 @@ function navigate(viewName) {
 
     // Reset layout title
     if (viewName === 'login') {
-        // Redirect to counselor automatically to completely bypass login page
-        const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
-        const defaultSC = counselors.find(c => c.active) || counselors[0];
-        loginSuccess(defaultSC, 'counselor');
+        document.getElementById('sidebar').classList.add('hidden');
+        document.querySelector('.app-header').classList.add('hidden');
+        renderLoginView(contentArea, loginSuccess);
         return;
     } else if (viewName === 'counselor') {
         titleArea.textContent = '';
