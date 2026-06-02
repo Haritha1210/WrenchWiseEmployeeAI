@@ -44,13 +44,7 @@ export function analyzeGaps(candidate, program, benchmark) {
     }
 
     // 5. Missing Industry Tools
-    const essentialTools = {
-        aiml: ["Git", "GitHub", "MLOps Pipelines", "Vector Databases (Pinecone/Chroma)", "Weights & Biases / MLflow"],
-        fullstack: ["Git", "GitHub", "REST APIs", "Postman", "Cloud Deployment (AWS/Vercel)"]
-    };
-    
-    const programId = (program && program.id) || "aiml";
-    const toolsToCheck = essentialTools[programId] || ["Git", "GitHub"];
+    const toolsToCheck = (program && program.essentialTools) || ["Git", "GitHub"];
     const missingTools = toolsToCheck.filter(tool => {
         return !candSkills.some(cs => cs.includes(tool.toLowerCase()));
     });

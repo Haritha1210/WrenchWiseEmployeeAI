@@ -245,37 +245,32 @@ function renderSnapshotStep(container) {
                 <div class="program-selection-container" style="border-top:1px solid var(--border-color); padding-top:24px; margin-top: 24px; width:100%;">
                     <h3 style="align-self: flex-start; margin-bottom: 16px; font-family: var(--font-heading);">Select Candidate Career Program Path</h3>
                     <div class="program-cards-grid">
-                        <div class="program-card active" data-prog="aiml" id="prog-card-aiml">
-                            <span class="program-badge">Advanced AI/ML</span>
-                            <h4 class="program-title">AI/ML 7.0: Advanced Track</h4>
-                            <p class="program-desc">7 progressive phases covering 5 industry AI paths. Master deep learning, Generative AI, and Agentic Systems, complete with hands-on capstones and full MLOps pipelines.</p>
-                            <div class="program-stats-row">
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Skills Stack</span>
-                                    <span class="prog-stat-value">15 Technologies</span>
+                        ${getStorageItem('wrenchwise_programs', []).map((p, idx) => {
+                            const badge = p.id === 'aiml' ? 'Advanced AI/ML' : (p.id === 'fullstack' ? 'AI-Powered Full Stack' : `${p.id.toUpperCase()} Path`);
+                            const desc = p.id === 'aiml' 
+                                ? '7 progressive phases covering 5 industry AI paths. Master deep learning, Generative AI, and Agentic Systems, complete with hands-on capstones and full MLOps pipelines.'
+                                : (p.id === 'fullstack'
+                                    ? 'A 120-day intensive program mastering the MERN Stack, modern responsive design, authentication, cloud deployment, and advanced AI application integrations.'
+                                    : `Upskill in ${p.name}. Features standard tools, comprehensive curriculum projects, and verified credentials.`);
+                            
+                            return `
+                                <div class="program-card ${p.id === selectedProgramId ? 'active' : ''}" data-prog="${p.id}" id="prog-card-${p.id}">
+                                    <span class="program-badge">${badge}</span>
+                                    <h4 class="program-title">${p.name.split(':')[0]}</h4>
+                                    <p class="program-desc">${desc}</p>
+                                    <div class="program-stats-row">
+                                        <div class="prog-stat">
+                                            <span class="prog-stat-label">Skills Stack</span>
+                                            <span class="prog-stat-value">${p.skills.length} Technologies</span>
+                                        </div>
+                                        <div class="prog-stat">
+                                            <span class="prog-stat-label">Projects Gained</span>
+                                            <span class="prog-stat-value">${p.projects.length} Repositories</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Projects Gained</span>
-                                    <span class="prog-stat-value">15+ Repositories</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="program-card" data-prog="fullstack" id="prog-card-fullstack">
-                            <span class="program-badge">AI-Powered Full Stack</span>
-                            <h4 class="program-title">Full Stack 4.0: MERN Track</h4>
-                            <p class="program-desc">A 120-day intensive program mastering the MERN Stack, modern responsive design, authentication, cloud deployment, and advanced AI application integrations.</p>
-                            <div class="program-stats-row">
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Skills Stack</span>
-                                    <span class="prog-stat-value">12 Technologies</span>
-                                </div>
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Projects Gained</span>
-                                    <span class="prog-stat-value">6 Repositories</span>
-                                </div>
-                            </div>
-                        </div>
+                            `;
+                        }).join('')}
                     </div>
 
                     <button class="btn btn-primary w-full" id="btn-run-analysis" style="padding:14px; font-size:1rem; margin-top: 24px;">
@@ -381,19 +376,13 @@ function renderSnapshotStep(container) {
     });
 
     // Program selection bindings
-    const cardAiml = document.getElementById('prog-card-aiml');
-    const cardFullstack = document.getElementById('prog-card-fullstack');
-    
-    cardAiml.addEventListener('click', () => {
-        selectedProgramId = 'aiml';
-        cardAiml.classList.add('active');
-        cardFullstack.classList.remove('active');
-    });
-
-    cardFullstack.addEventListener('click', () => {
-        selectedProgramId = 'fullstack';
-        cardFullstack.classList.add('active');
-        cardAiml.classList.remove('active');
+    const programCards = container.querySelectorAll('.program-cards-grid .program-card');
+    programCards.forEach(card => {
+        card.addEventListener('click', () => {
+            programCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            selectedProgramId = card.getAttribute('data-prog');
+        });
     });
 
     // Submit button bindings
@@ -427,7 +416,11 @@ function renderTransformationDashboard(container) {
             throw new Error("Critical database configuration parameters could not be loaded from storage. Try logging out and signing in again.");
         }
 
-        const program = programs.find(p => p.id === selectedProgramId);
+        let program = programs.find(p => p.id === selectedProgramId);
+        if (!program && programs.length > 0) {
+            program = programs[0];
+            selectedProgramId = program.id;
+        }
         if (!program) {
             throw new Error(`Selected program path [${selectedProgramId}] could not be found in curriculum configuration.`);
         }
@@ -443,13 +436,19 @@ function renderTransformationDashboard(container) {
         const recruiterObs = getRecruiterObservations(activeCandidate, comparison.future.profile);
         const jobMatches = calculateJobMatching(activeCandidate, comparison.future.profile, selectedProgramId);
 
-        // Also calculate job matching for both programs (each with its own future profile)
+        // Also calculate job matching for both programs (each with its own future profile) if they exist
         const aimlProgram = programs.find(p => p.id === 'aiml');
         const fullstackProgram = programs.find(p => p.id === 'fullstack');
-        const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
-        const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
-        const aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
-        const fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
+        let aimlJobMatches = [];
+        let fullstackJobMatches = [];
+        if (aimlProgram) {
+            const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
+            aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
+        }
+        if (fullstackProgram) {
+            const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
+            fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
+        }
 
         // Save lead record in history (Step 17)
         saveAssessedLead(comparison);

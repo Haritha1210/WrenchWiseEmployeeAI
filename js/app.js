@@ -33,7 +33,10 @@ window.onerror = function(message, source, lineno, colno, error) {
 function init() {
     // 1. Initialize Seed Data in localStorage if not already set or invalid (or using old signatures)
     const progData = getStorageItem('wrenchwise_programs', null);
-    const isOldProg = progData && Array.isArray(progData) && progData.some(p => p.name === "AI/ML Engineering Program" || p.name === "Full Stack Development with AI");
+    const isOldProg = progData && Array.isArray(progData) && (
+        progData.some(p => p.name === "AI/ML Engineering Program" || p.name === "Full Stack Development with AI") ||
+        !progData.some(p => p.roles !== undefined)
+    );
     if (!progData || !Array.isArray(progData) || progData.length === 0 || isOldProg) {
         setStorageItem('wrenchwise_programs', DEFAULT_PROGRAMS);
         // Also reset benchmarks to match the new skill thresholds
@@ -85,6 +88,8 @@ function init() {
     } else {
         navigate('login');
     }
+
+    if (window.lucide) window.lucide.createIcons();
 }
 
 /**

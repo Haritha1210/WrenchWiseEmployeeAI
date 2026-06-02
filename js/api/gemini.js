@@ -226,3 +226,128 @@ Tasks:
         throw error;
     }
 }
+
+export async function extractProgramFromBrochure(filePayload, apiKey) {
+    if (!apiKey) {
+        throw new Error("Gemini API Key is missing.");
+    }
+
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const promptExtraction = `You are an expert AI Education Curriculum & Syllabus Extraction Engine.
+
+Mission: Extract the course syllabus / brochure into the highly structured JSON schema provided.
+
+Rules:
+1. Identify Course Name: Search for the title of the course, curriculum, program, or certification track.
+2. Skills Taxonomy: Extract the list of core technical skills, programming languages, libraries, frameworks, tools, or methodologies taught in the syllabus. Make sure to standardize skill names (e.g. ReactJS -> React, NextJS -> Next.js, Node -> Node.js, Python, Docker). Limit to 10-15 core skills.
+3. Curriculum Projects: Extract the hands-on projects, capstones, real-world scenarios, or case studies mentioned in the syllabus. Generate 3-7 core project titles.
+4. Project Details: For each dynamic project title extracted, generate an authentic, industry-standard description (desc) detailing what was built, and specify the exact technologies/skills (tech) used in that project as taught in this curriculum. Keep the description professional and concrete.
+5. Certifications: Detect or generate 2-3 professional credentials, badges, or certificates gained upon completing this program.
+6. Learning Outcomes: Formulate 3-4 professional learning outcomes demonstrating what the graduate will be able to do.
+7. Essential Tools: Extract a list of 4-6 essential software packages, cloud environments, version control tools, or testing frameworks used in the course (e.g. Git, GitHub, Docker, AWS, Postman, Linux).
+8. Target Job Roles: Map this curriculum to 3-5 typical industrial job roles (e.g. DevOps Engineer, Security Analyst, Frontend Developer) that a graduate of this program would qualify for. For each role, list the core required skills taught in this curriculum.
+
+Do NOT hallucinate. Return only valid information from the brochure.`;
+
+    const responseSchema = {
+        type: "OBJECT",
+        properties: {
+            name: { type: "STRING" },
+            skills: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            },
+            projects: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            },
+            certifications: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            },
+            learningOutcomes: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            },
+            essentialTools: {
+                type: "ARRAY",
+                items: { type: "STRING" }
+            },
+            roles: {
+                type: "ARRAY",
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        title: { type: "STRING" },
+                        requiredSkills: {
+                            type: "ARRAY",
+                            items: { type: "STRING" }
+                        }
+                    }
+                }
+            },
+            projectDetails: {
+                type: "OBJECT",
+                description: "An object mapping each project title to its description and tech details",
+                additionalProperties: {
+                    type: "OBJECT",
+                    properties: {
+                        desc: { type: "STRING" },
+                        tech: { type: "STRING" }
+                    }
+                }
+            }
+        },
+        required: ["name", "skills", "projects", "certifications", "learningOutcomes", "essentialTools", "roles", "projectDetails"]
+    };
+
+    let documentPart = {};
+    if (filePayload.type === 'text') {
+        documentPart = { text: filePayload.data };
+    } else {
+        documentPart = {
+            inlineData: {
+                mimeType: filePayload.mimeType,
+                data: filePayload.data
+            }
+        };
+    }
+
+    const payload = {
+        contents: [
+            {
+                role: "user",
+                parts: [
+                    documentPart,
+                    { text: promptExtraction }
+                ]
+            }
+        ],
+        generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json",
+            responseSchema: responseSchema
+        }
+    };
+
+    try {
+        const response = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(`Brochure Extraction Error: ${response.status} - ${errData?.error?.message}`);
+        }
+
+        const data = await response.json();
+        const jsonText = data.candidates[0].content.parts[0].text;
+        return JSON.parse(jsonText);
+    } catch (error) {
+        console.error("Error extracting program from brochure:", error);
+        throw error;
+    }
+}

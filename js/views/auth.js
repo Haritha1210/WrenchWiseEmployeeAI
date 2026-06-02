@@ -23,14 +23,14 @@ export function renderLoginView(container, onLoginSuccess) {
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label class="form-label" for="login-email">Admin Email</label>
                     <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px; height: 18px;"></i>
+                        <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                         <input type="email" id="login-email" class="form-input" placeholder="admin@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label class="form-label" for="login-password">Password</label>
                     <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px; height: 18px;"></i>
+                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                         <input type="password" id="login-password" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
@@ -42,7 +42,7 @@ export function renderLoginView(container, onLoginSuccess) {
             footerContent = `
                 <div style="text-align: center; margin-top: 24px; display:flex; flex-direction:column; gap:12px;">
                     <div>
-                        <span style="color: var(--text-light); font-size: 0.9rem;">Need to join the team? </span>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">Need to join the team? </span>
                         <a href="#" id="link-request-access" style="color: var(--primary); font-weight: 500; text-decoration: none; transition: color 0.2s;">Request Access</a>
                     </div>
                 </div>
@@ -55,14 +55,14 @@ export function renderLoginView(container, onLoginSuccess) {
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label class="form-label" for="req-name">Full Name</label>
                     <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px; height: 18px;"></i>
+                        <i data-lucide="user" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                         <input type="text" id="req-name" class="form-input" placeholder="John Doe" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
                     <label class="form-label" for="req-email">Work Email</label>
                     <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px; height: 18px;"></i>
+                        <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                         <input type="email" id="req-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
@@ -73,15 +73,15 @@ export function renderLoginView(container, onLoginSuccess) {
             `;
             footerContent = `
                 <div style="text-align: center; margin-top: 24px;">
-                    <span style="color: var(--text-light); font-size: 0.9rem;">Already have access? </span>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">Already have access? </span>
                     <a href="#" id="link-back-login" style="color: var(--primary); font-weight: 500; text-decoration: none;">Back to Login</a>
                 </div>
             `;
         }
 
         container.innerHTML = `
-            <div class="login-container" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top right, rgba(0, 168, 150, 0.05), transparent 400px), var(--bg-color);">
-                <div class="glass-card login-card" style="width: 100%; max-width: 420px; padding: 48px; border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); background: var(--surface); border: 1px solid var(--border-color); position: relative; overflow: hidden;">
+            <div class="login-container" style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top right, rgba(0, 168, 150, 0.05), transparent 400px), var(--bg-light);">
+                <div class="glass-card login-card" style="width: 100%; max-width: 420px; padding: 48px; border-radius: var(--radius-md); box-shadow: var(--shadow-lg); background: var(--card-bg); border: 1px solid var(--border-color); position: relative; overflow: hidden;">
                     <!-- Decorative Top Accent -->
                     <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
                     
@@ -89,8 +89,8 @@ export function renderLoginView(container, onLoginSuccess) {
                         <div class="login-logo" style="width: 64px; height: 64px; background: rgba(0, 168, 150, 0.1); color: var(--primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: inset 0 0 0 1px rgba(0,168,150,0.2);">
                             <i data-lucide="${icon}" style="width: 32px; height: 32px;"></i>
                         </div>
-                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-dark); margin-bottom: 8px;">${title}</h2>
-                        <p style="color: var(--text-light); font-size: 0.95rem; line-height: 1.5;">${subtitle}</p>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${title}</h2>
+                        <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">${subtitle}</p>
                     </div>
 
                     <form id="auth-form" onsubmit="return false;">

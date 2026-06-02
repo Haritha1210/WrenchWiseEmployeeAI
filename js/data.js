@@ -29,7 +29,45 @@ export const DEFAULT_PROGRAMS = [
             "Construct end-to-end scalable Machine Learning and Deep Learning pipelines",
             "Develop state-of-the-art Generative AI applications and Agentic Systems using LangChain and FAISS",
             "Version, track, and deploy production models on cloud platforms with modern MLOps (MLflow, Vertex AI, Docker)"
-        ]
+        ],
+        essentialTools: ["Git", "GitHub", "MLOps Pipelines", "Vector Databases (Pinecone/Chroma)", "Weights & Biases / MLflow"],
+        roles: [
+            { title: "AI Engineer", requiredSkills: ["Python", "Machine Learning", "Deep Learning", "Generative AI", "LangChain"] },
+            { title: "Machine Learning Engineer", requiredSkills: ["Python", "NumPy", "Pandas", "Machine Learning", "TensorFlow", "MLOps"] },
+            { title: "Data Scientist", requiredSkills: ["Python", "NumPy", "Pandas", "Machine Learning", "Deep Learning"] },
+            { title: "AI Developer", requiredSkills: ["Python", "Generative AI", "Prompt Engineering", "LangChain", "Vector Databases"] },
+            { title: "GenAI Engineer", requiredSkills: ["Python", "Generative AI", "Prompt Engineering", "LangChain", "Vector Databases", "MLOps"] }
+        ],
+        projectDetails: {
+            "Predictive Maintenance System": {
+                desc: "Designed and implemented a real-time anomaly detection pipeline for manufacturing equipment sensors using Scikit-Learn, PyTorch, and Pandas. Deployed as a scalable endpoint on Vertex AI with drift alerts.",
+                tech: "Python, PyTorch, Scikit-Learn, Pandas, Vertex AI"
+            },
+            "GenAI Chatbot with LangChain": {
+                desc: "Developed a context-aware enterprise Generative AI Q&A chatbot using LangChain, OpenAI API, and Pinecone vector database. Integrated advanced semantic search, prompt templating, and prompt caching mechanisms.",
+                tech: "Python, LangChain, Vector Databases, Generative AI"
+            },
+            "AI Resume Analyzer API": {
+                desc: "Built a high-performance backend API service that extracts text from PDF resumes, performs column-aware layout reconstruction, and uses structured JSON schema LLM prompts for high-accuracy credential parsing.",
+                tech: "Python, FastAPI, OpenAI API, Docker, Git/GitHub"
+            },
+            "Customer Churn Pipeline": {
+                desc: "Constructed an automated customer churn prediction pipeline. Integrated feature engineering, model training, MLflow experiment tracking, and batch-inference scheduling on production clusters.",
+                tech: "Python, Pandas, MLflow, Docker, TensorFlow"
+            },
+            "Computer Vision Quality Inspection": {
+                desc: "Created a deep learning image classification model using PyTorch and OpenCV to automate visual quality inspection in assembly lines, achieving 98.4% accuracy.",
+                tech: "Python, PyTorch, OpenCV, NumPy"
+            },
+            "Recommendation Engine Core": {
+                desc: "Built a hybrid collaborative filtering and content-based recommendation service using TensorFlow Recommenders, optimizing content delivery for 50k+ active users.",
+                tech: "Python, TensorFlow, Pandas, Scikit-Learn"
+            },
+            "Deployed Industry AI Operating Platform": {
+                desc: "Final comprehensive capstone deploying multiple production-grade AI microservices into a unified Kubernetes cluster. Managed CI/CD pipelines, container orchestration, and MLflow model registries.",
+                tech: "Python, Kubernetes, Docker, MLflow, Vertex AI, MLOps"
+            }
+        }
     },
     {
         id: "fullstack",
@@ -56,7 +94,41 @@ export const DEFAULT_PROGRAMS = [
             "Design modern, fluid web frontends using React and robust Vanilla CSS custom properties",
             "Architect secure server backends using Node.js, Express, and JWT authentication",
             "Integrate advanced AI functionalities, LLM API calls, and cloud databases (MongoDB Atlas) into web apps"
-        ]
+        ],
+        essentialTools: ["Git", "GitHub", "REST APIs", "Postman", "Cloud Deployment (AWS/Vercel)"],
+        roles: [
+            { title: "Software Engineer", requiredSkills: ["HTML", "CSS", "JavaScript", "React", "Node.js", "Express.js", "MongoDB"] },
+            { title: "Full Stack Developer", requiredSkills: ["HTML", "CSS", "JavaScript", "React", "Node.js", "Express.js", "MongoDB", "REST APIs"] },
+            { title: "Backend Developer", requiredSkills: ["JavaScript", "Node.js", "Express.js", "MongoDB", "REST APIs", "Authentication"] },
+            { title: "Frontend Developer", requiredSkills: ["HTML", "CSS", "JavaScript", "React", "Deployment"] },
+            { title: "AI Application Developer", requiredSkills: ["HTML", "CSS", "JavaScript", "React", "AI Integration", "Prompt Engineering"] }
+        ],
+        projectDetails: {
+            "Responsive Portfolio Website": {
+                desc: "Designed and deployed a highly fluid personal branding portfolio website using HTML5, CSS3 Custom Properties, and vanilla JavaScript. Optimized for SEO, speed, and mobile responsiveness.",
+                tech: "HTML5, CSS3, JavaScript, Vercel/Netlify"
+            },
+            "E-Commerce Platform with Stripe": {
+                desc: "Built a complete online e-commerce portal with user authentication, catalog management, MongoDB persistence, and a secure checkout pipeline using Stripe APIs and webhooks.",
+                tech: "React, Node.js, Express.js, MongoDB, REST APIs"
+            },
+            "LMS Application with Video Streaming": {
+                desc: "Developed a modular Learning Management System with user roles (instructors/students), course progression trackers, and cloud-hosted video streaming pipelines with secure JWT access.",
+                tech: "React, Node.js, Express.js, MongoDB, Authentication (JWT)"
+            },
+            "Collaborative Task Manager": {
+                desc: "Created a real-time task collaboration application using React and socket.io, featuring drag-and-drop kanban boards, instant push notifications, and team space access control.",
+                tech: "React, Node.js, Express.js, MongoDB"
+            },
+            "AI Chat & Semantic Search Portal": {
+                desc: "Architected a full stack web portal integrating LLM conversational capabilities and vector-based semantic search across site documents, optimizing context retention.",
+                tech: "React, Node.js, Express.js, MongoDB, AI Integration"
+            },
+            "Enterprise MERN Stack Capstone": {
+                desc: "Final 120-day enterprise full-stack program capstone. Built a highly secure, auto-scaling multi-tenant dashboard. Packed with logging, Jest unit testing, and deployed inside a Docker workflow.",
+                tech: "React, Node.js, Express.js, MongoDB, Docker, Vercel/Netlify"
+            }
+        }
     }
 ];
 

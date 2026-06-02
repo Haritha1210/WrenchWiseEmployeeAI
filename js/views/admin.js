@@ -3,6 +3,7 @@
    ========================================================================== */
 
 import { getStorageItem, setStorageItem, showToast } from '../utils.js';
+import { extractProgramFromBrochure } from '../api/gemini.js';
 
 let activeSubSection = 'weights'; // active panel: weights, benchmarks, programs, counselors
 
@@ -177,61 +178,44 @@ function renderWeightsPanel(container) {
  */
 function renderBenchmarksPanel(container) {
     const benchmarks = getStorageItem('wrenchwise_benchmarks', {});
+    const programs = getStorageItem('wrenchwise_programs', []);
 
     container.innerHTML = `
-        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="award" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Program Benchmark Benchmarks</h3>
+        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="award" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Program Benchmarks</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure the target thresholds that define whether a candidate profile is categorized as "Industry Ready".</p>
         
         <form id="benchmarks-form" onsubmit="return false;">
-            <!-- AI/ML Program Benchmarks -->
-            <div style="margin-bottom:32px; border-bottom:1px solid var(--border-color); padding-bottom:24px;">
-                <h4 style="color:var(--primary-light); margin-bottom:16px;">AI/ML Engineering Benchmarks</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="bench-aiml-skills">Target Skills Count</label>
-                        <input type="number" id="bench-aiml-skills" class="form-input" value="${benchmarks.aiml.skillsCount}" style="padding-left:16px;">
+            ${programs.map((p, idx) => {
+                const bench = benchmarks[p.id] || { skillsCount: 8, projectsCount: 4, certificationsCount: 1, industryToolsCount: 3 };
+                const borderStyle = idx === programs.length - 1 ? '' : 'border-bottom:1px solid var(--border-color); padding-bottom:24px; margin-bottom:32px;';
+                const headerColor = p.id === 'aiml' ? 'var(--primary-light)' : (p.id === 'fullstack' ? '#a855f7' : 'var(--secondary-light)');
+                
+                return `
+                    <div style="${borderStyle}">
+                        <h4 style="color:${headerColor}; margin-bottom:16px;">${p.name.split(':')[0]} Benchmarks</h4>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="bench-${p.id}-skills">Target Skills Count</label>
+                                <input type="number" id="bench-${p.id}-skills" class="form-input" value="${bench.skillsCount}" style="padding-left:16px;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="bench-${p.id}-projects">Target Projects Count</label>
+                                <input type="number" id="bench-${p.id}-projects" class="form-input" value="${bench.projectsCount}" style="padding-left:16px;">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="bench-${p.id}-certs">Target Certifications Count</label>
+                                <input type="number" id="bench-${p.id}-certs" class="form-input" value="${bench.certificationsCount}" style="padding-left:16px;">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="bench-${p.id}-tools">Target Tools Count</label>
+                                <input type="number" id="bench-${p.id}-tools" class="form-input" value="${bench.industryToolsCount || bench.toolsCount || 3}" style="padding-left:16px;">
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label" for="bench-aiml-projects">Target Projects Count</label>
-                        <input type="number" id="bench-aiml-projects" class="form-input" value="${benchmarks.aiml.projectsCount}" style="padding-left:16px;">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="bench-aiml-certs">Target Certifications Count</label>
-                        <input type="number" id="bench-aiml-certs" class="form-input" value="${benchmarks.aiml.certificationsCount}" style="padding-left:16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="bench-aiml-tools">Target Tools Count</label>
-                        <input type="number" id="bench-aiml-tools" class="form-input" value="${benchmarks.aiml.industryToolsCount}" style="padding-left:16px;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Full Stack Web Benchmarks -->
-            <div style="margin-bottom:24px;">
-                <h4 style="color:#a855f7; margin-bottom:16px;">Full Stack Development Benchmarks</h4>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="bench-fullstack-skills">Target Skills Count</label>
-                        <input type="number" id="bench-fullstack-skills" class="form-input" value="${benchmarks.fullstack.skillsCount}" style="padding-left:16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="bench-fullstack-projects">Target Projects Count</label>
-                        <input type="number" id="bench-fullstack-projects" class="form-input" value="${benchmarks.fullstack.projectsCount}" style="padding-left:16px;">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label" for="bench-fullstack-certs">Target Certifications Count</label>
-                        <input type="number" id="bench-fullstack-certs" class="form-input" value="${benchmarks.fullstack.certificationsCount}" style="padding-left:16px;">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="bench-fullstack-tools">Target Tools Count</label>
-                        <input type="number" id="bench-fullstack-tools" class="form-input" value="${benchmarks.fullstack.industryToolsCount}" style="padding-left:16px;">
-                    </div>
-                </div>
-            </div>
+                `;
+            }).join('')}
             
             <button class="btn btn-primary w-full mt-24" id="btn-save-benchmarks" style="padding:12px;">
                 <i data-lucide="save"></i> Save Benchmark Requirements
@@ -243,19 +227,22 @@ function renderBenchmarksPanel(container) {
 
     // Save Benchmarks Action
     document.getElementById('btn-save-benchmarks').addEventListener('click', () => {
-        benchmarks.aiml.skillsCount = parseInt(document.getElementById('bench-aiml-skills').value);
-        benchmarks.aiml.projectsCount = parseInt(document.getElementById('bench-aiml-projects').value);
-        benchmarks.aiml.certificationsCount = parseInt(document.getElementById('bench-aiml-certs').value);
-        benchmarks.aiml.industryToolsCount = parseInt(document.getElementById('bench-aiml-tools').value);
-
-        benchmarks.fullstack.skillsCount = parseInt(document.getElementById('bench-fullstack-skills').value);
-        benchmarks.fullstack.projectsCount = parseInt(document.getElementById('bench-fullstack-projects').value);
-        benchmarks.fullstack.certificationsCount = parseInt(document.getElementById('bench-fullstack-certs').value);
-        benchmarks.fullstack.industryToolsCount = parseInt(document.getElementById('bench-fullstack-tools').value);
+        programs.forEach(p => {
+            benchmarks[p.id] = benchmarks[p.id] || {};
+            benchmarks[p.id].skillsCount = parseInt(document.getElementById(`bench-${p.id}-skills`).value) || 5;
+            benchmarks[p.id].projectsCount = parseInt(document.getElementById(`bench-${p.id}-projects`).value) || 2;
+            benchmarks[p.id].certificationsCount = parseInt(document.getElementById(`bench-${p.id}-certs`).value) || 1;
+            benchmarks[p.id].industryToolsCount = parseInt(document.getElementById(`bench-${p.id}-tools`).value) || 2;
+            benchmarks[p.id].portfolioRequired = true;
+            benchmarks[p.id].githubRequired = true;
+            benchmarks[p.id].brandingOptimized = true;
+            benchmarks[p.id].experienceMonths = 6;
+        });
 
         setStorageItem('wrenchwise_benchmarks', benchmarks);
         showToast("Benchmarks updated successfully!", "success");
     });
+}
 }
 
 /**
@@ -319,11 +306,26 @@ function renderProgramsPanel(container) {
 
     container.innerHTML = `
         <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="book-open" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Program Management</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure the details of program repositories, including core syllabus skills, project names, and earned certifications.</p>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure details of program tracks or automatically import a new dynamic path by dropping a course brochure syllabus.</p>
         
-        <div class="report-tabs" style="margin-bottom: 20px;">
+        <!-- dynamic brochure syllabus uploader dropzone -->
+        <div class="glass-card mb-24" style="padding: 24px; border: 1px dashed var(--primary); background: rgba(0, 168, 150, 0.02); display: flex; flex-direction: column; gap: 12px; align-items: center; text-align: center; border-radius: var(--radius-md);">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0, 168, 150, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 4px;">
+                <i data-lucide="file-plus" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div>
+                <h4 style="color: var(--text-main); font-weight: 700; margin-bottom: 4px; font-family: var(--font-heading);">Import Dynamic Program from Brochure</h4>
+                <p style="color: var(--text-muted); font-size: 0.8rem; max-width: 500px; line-height: 1.5;">Drag & drop a syllabus PDF, txt, or image. Our Gemini Two-Pass parser compiles curriculum skills, verified credentials, hands-on capstone descriptions, and targets instantly.</p>
+            </div>
+            <input type="file" id="brochure-file-input" style="display: none;" accept=".pdf,.txt,.png,.jpg,.jpeg">
+            <button class="btn btn-secondary" id="btn-trigger-brochure-upload" style="padding: 8px 16px; font-size: 0.85rem; border-radius: var(--radius-sm);">
+                <i data-lucide="upload-cloud"></i> Select Brochure Syllabus
+            </button>
+        </div>
+
+        <div class="report-tabs" style="margin-bottom: 20px; overflow-x: auto; display: flex; gap: 8px; padding-bottom: 4px;">
             ${programs.map((p, idx) => `
-                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}">${p.name}</button>
+                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}" style="white-space: nowrap;">${p.name.split(':')[0]}</button>
             `).join('')}
         </div>
         
@@ -331,6 +333,18 @@ function renderProgramsPanel(container) {
             <!-- Form rendered here -->
         </div>
     `;
+
+    // Hook brochure trigger
+    const triggerBtn = container.querySelector('#btn-trigger-brochure-upload');
+    const fileInput = container.querySelector('#brochure-file-input');
+    if (triggerBtn && fileInput) {
+        triggerBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                handleBrochureUpload(fileInput.files[0]);
+            }
+        });
+    }
 
     // Hook tab switches
     const tabBtns = container.querySelectorAll('.tab-btn');
@@ -344,6 +358,125 @@ function renderProgramsPanel(container) {
     });
 
     renderActiveProgramForm();
+}
+
+/**
+ * Dynamic Brochure PDF/TXT Course Syllabus extraction and database integration
+ */
+async function handleBrochureUpload(file) {
+    if (file.size > 10 * 1024 * 1024) {
+        showToast("File size exceeds 10MB limit.", "error");
+        return;
+    }
+
+    const overlay = document.createElement('div');
+    overlay.className = 'parsing-loader-overlay';
+    overlay.innerHTML = `
+        <div class="loader-content">
+            <div class="progress-ring-container">
+                <div class="progress-spinner"></div>
+                <div class="progress-text-percent" id="parse-percentage">0%</div>
+            </div>
+            <div class="loader-title" id="parse-loader-status">Scanning brochure structure...</div>
+            <div class="loader-subtitle">EmployAI Brochure Syllabus Parser Engine v3.0</div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    let progress = 0;
+    const statusMessages = [
+        "Reading brochure document...",
+        "Identifying program name & title...",
+        "Extracting curriculum skills stack...",
+        "Compiling hands-on project details...",
+        "Extracting verified certifications...",
+        "Synthesizing job role requirements...",
+        "Finalizing custom track database..."
+    ];
+
+    const interval = setInterval(() => {
+        if (progress < 90) {
+            progress += Math.floor(Math.random() * 4) + 1;
+            if (progress > 90) progress = 90;
+            const pctEl = document.getElementById('parse-percentage');
+            if (pctEl) pctEl.textContent = `${progress}%`;
+            const msgIndex = Math.min(statusMessages.length - 1, Math.floor(progress / 14));
+            const statusEl = document.getElementById('parse-loader-status');
+            if (statusEl) statusEl.textContent = statusMessages[msgIndex];
+        }
+    }, 45);
+
+    try {
+        const keyResponse = await fetch('/api/get-gemini-key');
+        if (!keyResponse.ok) throw new Error("Could not retrieve Gemini API key from proxy.");
+        const keyData = await keyResponse.json();
+        const apiKey = keyData.key;
+        if (!apiKey) throw new Error("Gemini API key is not configured in Vercel/Render environments.");
+
+        const fileExtension = file.name.split('.').pop().toLowerCase();
+        let filePayload = null;
+
+        if (fileExtension === 'txt') {
+            const text = await file.text();
+            filePayload = { type: 'text', data: text };
+        } else {
+            const base64Data = await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+            const mimeType = fileExtension === 'pdf' ? 'application/pdf' : `image/${fileExtension === 'jpg' ? 'jpeg' : fileExtension}`;
+            filePayload = { type: 'binary', mimeType, data: base64Data };
+        }
+
+        const parsed = await extractProgramFromBrochure(filePayload, apiKey);
+        if (!parsed || !parsed.name) throw new Error("AI brochure parsing failed or returned malformed structure.");
+
+        const slugId = parsed.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `program-${Date.now()}`;
+        parsed.id = slugId;
+
+        // Save programs
+        const programs = getStorageItem('wrenchwise_programs', []);
+        const idx = programs.findIndex(p => p.id === slugId);
+        if (idx !== -1) {
+            programs[idx] = parsed;
+        } else {
+            programs.push(parsed);
+        }
+        setStorageItem('wrenchwise_programs', programs);
+
+        // Generate benchmarks
+        const benchmarks = getStorageItem('wrenchwise_benchmarks', {});
+        benchmarks[slugId] = {
+            skillsCount: Math.max(5, Math.round(parsed.skills.length * 0.7)),
+            projectsCount: Math.max(2, Math.round(parsed.projects.length * 0.6)),
+            portfolioRequired: true,
+            githubRequired: true,
+            certificationsCount: Math.max(1, parsed.certifications.length),
+            experienceMonths: 6,
+            brandingOptimized: true,
+            industryToolsCount: Math.max(2, Math.round((parsed.essentialTools || []).length * 0.8))
+        };
+        setStorageItem('wrenchwise_benchmarks', benchmarks);
+
+        clearInterval(interval);
+        const pctEl = document.getElementById('parse-percentage');
+        if (pctEl) pctEl.textContent = "100%";
+        const statusEl = document.getElementById('parse-loader-status');
+        if (statusEl) statusEl.textContent = "Parsed successfully!";
+
+        setTimeout(() => {
+            overlay.remove();
+            showToast(`Track "${parsed.name}" imported successfully!`, "success");
+            renderActiveSubSection(); // refresh Admin panel
+        }, 150);
+
+    } catch (e) {
+        clearInterval(interval);
+        overlay.remove();
+        showToast(e.message || "Failed to process brochure PDF.", "error");
+    }
 }
 
 /**

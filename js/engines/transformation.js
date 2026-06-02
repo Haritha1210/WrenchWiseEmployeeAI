@@ -4,6 +4,7 @@
 
 import { calculateComponentScores, evaluateEmployability } from './scoring.js';
 import { calculateAtsFromProfile } from './parser.js';
+import { getStorageItem } from '../utils.js';
 
 // Pre-defined role-skill mappings for calculations
 const ROLE_SKILLS = {
@@ -115,8 +116,8 @@ export function simulateFutureProfile(candidate, program) {
     programProjectsToAdd.forEach(projTitle => {
         const hasProj = (candidate.projects || []).some(p => p && p.title && String(p.title).toLowerCase().includes(projTitle.toLowerCase()));
         if (!hasProj) {
-            const details = PROJECT_DETAILS[projTitle] || {
-                desc: `Comprehensive industry-grade project implementing ${program.id === 'aiml' ? 'machine learning models and predictive pipelines' : 'interactive user interfaces, database persistence, and secure APIs'} as part of the Wrench Wise curriculum.`,
+            const details = (program.projectDetails && program.projectDetails[projTitle]) || PROJECT_DETAILS[projTitle] || {
+                desc: `Comprehensive industry-grade project implementing key technologies as part of the Wrench Wise curriculum.`,
                 tech: program.skills.slice(0, 4).join(", ")
             };
             allProjects.push({
@@ -142,7 +143,7 @@ export function simulateFutureProfile(candidate, program) {
     futureCandidate.linkedin = futureCandidate.linkedin || "linkedin.com/in/upgraded-profile";
 
     // Inject core industry tools taught in the program to boost Industry Tools score legitimately
-    const programTools = program.id === 'aiml' ? ['aws', 'docker', 'linux', 'git'] : ['git', 'vscode', 'aws', 'docker'];
+    const programTools = (program.essentialTools || (program.id === 'aiml' ? ['aws', 'docker', 'linux', 'git'] : ['git', 'vscode', 'aws', 'docker'])).map(t => t.toLowerCase());
     programTools.forEach(tool => {
         if (!allSkillsSet.has(tool) && !(candidate.skills || []).some(s => s.toLowerCase() === tool.toLowerCase())) {
             allSkillsSet.add(tool);
@@ -255,15 +256,27 @@ export function getRecruiterObservations(candidate, futureCandidate) {
  * @param {string} programId - "aiml" or "fullstack"
  */
 export function calculateJobMatching(candidate, futureCandidate, programId) {
-    const roles = programId === "aiml" 
-        ? ["AI Engineer", "Machine Learning Engineer", "Data Scientist", "AI Developer", "GenAI Engineer"]
-        : ["Software Engineer", "Full Stack Developer", "Backend Developer", "Frontend Developer", "AI Application Developer"];
+    const programs = getStorageItem('wrenchwise_programs', []);
+    const program = programs.find(p => p.id === programId);
+    
+    const roles = (program && program.roles)
+        ? program.roles.map(r => r.title)
+        : (programId === "aiml" 
+            ? ["AI Engineer", "Machine Learning Engineer", "Data Scientist", "AI Developer", "GenAI Engineer"]
+            : ["Software Engineer", "Full Stack Developer", "Backend Developer", "Frontend Developer", "AI Application Developer"]);
 
     const currentSkills = (candidate.skills || []).map(s => s.toLowerCase());
     const futureSkills = (futureCandidate.skills || []).map(s => s.toLowerCase());
 
     const matches = roles.map(role => {
-        const required = ROLE_SKILLS[role] || [];
+        let required = [];
+        if (program && program.roles) {
+            const matchedRole = program.roles.find(r => r.title === role);
+            if (matchedRole) required = matchedRole.requiredSkills;
+        }
+        if (!required || required.length === 0) {
+            required = ROLE_SKILLS[role] || [];
+        }
         
         // Count matches for current
         let currentMatchCount = 0;
