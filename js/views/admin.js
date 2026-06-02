@@ -321,10 +321,11 @@ function renderProgramsPanel(container) {
         <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="book-open" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Program Management</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure the details of program repositories, including core syllabus skills, project names, and earned certifications.</p>
         
-        <div class="report-tabs" style="margin-bottom: 20px;">
+        <div class="report-tabs" style="margin-bottom: 20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             ${programs.map((p, idx) => `
                 <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}">${p.name}</button>
             `).join('')}
+            <button class="tab-btn" id="btn-add-program" style="background: rgba(0, 141, 155, 0.1); color: var(--primary);"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> Add Program</button>
         </div>
         
         <div id="program-curriculum-form-box">
@@ -333,7 +334,7 @@ function renderProgramsPanel(container) {
     `;
 
     // Hook tab switches
-    const tabBtns = container.querySelectorAll('.tab-btn');
+    const tabBtns = container.querySelectorAll('.tab-btn:not(#btn-add-program)');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             activeProgIdx = parseInt(btn.getAttribute('data-idx'));
@@ -342,6 +343,26 @@ function renderProgramsPanel(container) {
             renderActiveProgramForm();
         });
     });
+
+    const btnAddProgram = document.getElementById('btn-add-program');
+    if (btnAddProgram) {
+        btnAddProgram.addEventListener('click', () => {
+            const newProgram = {
+                id: 'prog_' + Date.now(),
+                name: 'New Custom Program',
+                skills: [],
+                projects: [],
+                certifications: []
+            };
+            programs.push(newProgram);
+            setStorageItem('wrenchwise_programs', programs);
+            
+            // Switch to the newly created program tab
+            activeProgIdx = programs.length - 1;
+            renderProgramsPanel(container); // Re-render the panel to show the new tab
+            showToast("New program added. Please configure its details.", "success");
+        });
+    }
 
     renderActiveProgramForm();
 }
