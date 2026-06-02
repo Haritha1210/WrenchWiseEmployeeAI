@@ -10,42 +10,14 @@ import { getStorageItem, setStorageItem, showToast } from '../utils.js?v=2.1';
  * @param {Function} onLoginSuccess - Callback when login completes: (userObj, role) => {}
  */
 export function renderLoginView(container, onLoginSuccess) {
-    let mode = 'counselor_login'; // 'counselor_login', 'admin_login', 'request'
+    let mode = 'admin_login'; // 'admin_login', 'request'
 
     const renderForm = () => {
         let title, subtitle, icon, formContent, footerContent;
 
-        if (mode === 'counselor_login') {
-            title = 'Counselor Portal';
-            subtitle = 'Sign in to assess resumes and track candidates';
-            icon = 'users';
-            formContent = `
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="form-label" for="login-email">Counselor Email</label>
-                    <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-light); width: 18px; height: 18px;"></i>
-                        <input type="email" id="login-email" class="form-input" placeholder="counselor@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
-                    </div>
-                </div>
-                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); border:none;">
-                    <span>Sign In</span>
-                    <i data-lucide="arrow-right" style="margin-left: 8px;"></i>
-                </button>
-            `;
-            footerContent = `
-                <div style="text-align: center; margin-top: 24px; display:flex; flex-direction:column; gap:12px;">
-                    <div>
-                        <span style="color: var(--text-light); font-size: 0.9rem;">Need to add a Counselor? </span>
-                        <a href="#" id="link-request-access" style="color: var(--primary); font-weight: 500; text-decoration: none; transition: color 0.2s;">Request Access</a>
-                    </div>
-                    <div>
-                        <a href="#" id="link-admin" style="color: var(--text-muted); font-weight: 500; text-decoration: none; font-size:0.85rem;"><i data-lucide="shield" style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"></i>System Administrator Login</a>
-                    </div>
-                </div>
-            `;
-        } else if (mode === 'admin_login') {
+        if (mode === 'admin_login') {
             title = 'System Administration';
-            subtitle = 'Sign in with your secure admin credentials';
+            subtitle = 'Sign in with your secure credentials';
             icon = 'shield-check';
             formContent = `
                 <div class="form-group" style="margin-bottom: 20px;">
@@ -62,19 +34,22 @@ export function renderLoginView(container, onLoginSuccess) {
                         <input type="password" id="login-password" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
-                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: #1e293b; border:none;">
-                    <span>Admin Sign In</span>
+                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); border:none;">
+                    <span>Sign In</span>
                     <i data-lucide="arrow-right" style="margin-left: 8px;"></i>
                 </button>
             `;
             footerContent = `
-                <div style="text-align: center; margin-top: 24px;">
-                    <a href="#" id="link-back-counselor" style="color: var(--text-muted); font-weight: 500; text-decoration: none; font-size:0.85rem;"><i data-lucide="arrow-left" style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"></i>Back to Counselor Portal</a>
+                <div style="text-align: center; margin-top: 24px; display:flex; flex-direction:column; gap:12px;">
+                    <div>
+                        <span style="color: var(--text-light); font-size: 0.9rem;">Need to join the team? </span>
+                        <a href="#" id="link-request-access" style="color: var(--primary); font-weight: 500; text-decoration: none; transition: color 0.2s;">Request Access</a>
+                    </div>
                 </div>
             `;
         } else if (mode === 'request') {
             title = 'Request Access';
-            subtitle = 'Register a new Sales Counselor profile';
+            subtitle = 'Register a new employee profile';
             icon = 'user-plus';
             formContent = `
                 <div class="form-group" style="margin-bottom: 20px;">
@@ -136,40 +111,10 @@ export function renderLoginView(container, onLoginSuccess) {
         }
 
         // Attach event listeners based on mode
-        if (mode === 'counselor_login') {
+        if (mode === 'admin_login') {
             document.getElementById('link-request-access').addEventListener('click', (e) => {
                 e.preventDefault();
                 mode = 'request';
-                renderForm();
-            });
-
-            document.getElementById('link-admin').addEventListener('click', (e) => {
-                e.preventDefault();
-                mode = 'admin_login';
-                renderForm();
-            });
-
-            document.getElementById('auth-form').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('login-email').value.trim().toLowerCase();
-                
-                let counselors = getStorageItem('wrenchwise_counselors', []);
-                const user = counselors.find(c => c.email.toLowerCase() === email);
-                
-                if (user) {
-                    if (user.active) {
-                        onLoginSuccess(user, 'counselor');
-                    } else {
-                        showToast("Your account is currently disabled. Please contact an administrator.", "warning");
-                    }
-                } else {
-                    showToast("Email not found. Please request access first.", "error");
-                }
-            });
-        } else if (mode === 'admin_login') {
-            document.getElementById('link-back-counselor').addEventListener('click', (e) => {
-                e.preventDefault();
-                mode = 'counselor_login';
                 renderForm();
             });
 
@@ -187,7 +132,7 @@ export function renderLoginView(container, onLoginSuccess) {
         } else if (mode === 'request') {
             document.getElementById('link-back-login').addEventListener('click', (e) => {
                 e.preventDefault();
-                mode = 'counselor_login';
+                mode = 'admin_login';
                 renderForm();
             });
 
@@ -199,7 +144,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 let counselors = getStorageItem('wrenchwise_counselors', []);
                 
                 if (counselors.some(c => c.email.toLowerCase() === email.toLowerCase())) {
-                    showToast("A counselor with this email already exists.", "warning");
+                    showToast("An employee with this email already exists.", "warning");
                     return;
                 }
 
@@ -216,7 +161,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 showToast("Request submitted successfully! Pending admin approval.", "success");
                 
                 setTimeout(() => {
-                    mode = 'counselor_login';
+                    mode = 'admin_login';
                     renderForm();
                 }, 1500);
             });
