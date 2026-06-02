@@ -68,8 +68,11 @@ export function renderAdminView(container) {
 
     // Switch to Counselor Panel Button Logic
     document.getElementById('btn-switch-counselor').addEventListener('click', () => {
-        setStorageItem('wrenchwise_session_role', 'counselor');
-        window.location.reload();
+        if (typeof window.appNavigate === 'function') {
+            window.appNavigate('counselor');
+        } else {
+            showToast("Navigation error. Please refresh the page.", "error");
+        }
     });
 }
 

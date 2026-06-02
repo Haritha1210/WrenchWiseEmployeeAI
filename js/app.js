@@ -211,6 +211,9 @@ function renderHeaderMenu() {
         `;
     } else if (currentRole === 'admin') {
         navContainer.innerHTML = `
+            <a class="header-nav-tab ${currentView === 'counselor' ? 'active' : ''}" data-view="counselor">
+                Counselor Panel
+            </a>
             <a class="header-nav-tab ${currentView === 'admin' ? 'active' : ''}" data-view="admin">
                 System Config
             </a>
@@ -258,4 +261,5 @@ function navigate(viewName) {
 
 // Start Application on Load
 window.addEventListener('DOMContentLoaded', init);
+window.appNavigate = navigate;
 export { navigate };
