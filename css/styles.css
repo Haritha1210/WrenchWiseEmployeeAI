@@ -2077,7 +2077,6 @@ h1, h2, h3, h4, h5, h6 {
     .print-page {
         page-break-after: always;
         position: relative;
-        min-height: 250mm;
     }
 
     .print-page:last-child {
