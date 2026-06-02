@@ -244,33 +244,8 @@ function renderSnapshotStep(container) {
                 <!-- Program Selection Section -->
                 <div class="program-selection-container" style="border-top:1px solid var(--border-color); padding-top:24px; margin-top: 24px; width:100%;">
                     <h3 style="align-self: flex-start; margin-bottom: 16px; font-family: var(--font-heading);">Select Candidate Career Program Path</h3>
-                    <div class="program-cards-grid">
-                        ${getStorageItem('wrenchwise_programs', []).map((p, idx) => {
-                            const badge = p.id === 'aiml' ? 'Advanced AI/ML' : (p.id === 'fullstack' ? 'AI-Powered Full Stack' : `${p.id.toUpperCase()} Path`);
-                            const desc = p.id === 'aiml' 
-                                ? '7 progressive phases covering 5 industry AI paths. Master deep learning, Generative AI, and Agentic Systems, complete with hands-on capstones and full MLOps pipelines.'
-                                : (p.id === 'fullstack'
-                                    ? 'A 120-day intensive program mastering the MERN Stack, modern responsive design, authentication, cloud deployment, and advanced AI application integrations.'
-                                    : `Upskill in ${p.name}. Features standard tools, comprehensive curriculum projects, and verified credentials.`);
-                            
-                            return `
-                                <div class="program-card ${p.id === selectedProgramId ? 'active' : ''}" data-prog="${p.id}" id="prog-card-${p.id}">
-                                    <span class="program-badge">${badge}</span>
-                                    <h4 class="program-title">${p.name.split(':')[0]}</h4>
-                                    <p class="program-desc">${desc}</p>
-                                    <div class="program-stats-row">
-                                        <div class="prog-stat">
-                                            <span class="prog-stat-label">Skills Stack</span>
-                                            <span class="prog-stat-value">${p.skills.length} Technologies</span>
-                                        </div>
-                                        <div class="prog-stat">
-                                            <span class="prog-stat-label">Projects Gained</span>
-                                            <span class="prog-stat-value">${p.projects.length} Repositories</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('')}
+                    <div class="program-cards-grid" id="counselor-program-grid">
+                        <!-- Rendered dynamically below -->
                     </div>
 
                     <button class="btn btn-primary w-full" id="btn-run-analysis" style="padding:14px; font-size:1rem; margin-top: 24px;">
@@ -376,14 +351,51 @@ function renderSnapshotStep(container) {
     });
 
     // Program selection bindings
-    const programCards = container.querySelectorAll('.program-cards-grid .program-card');
-    programCards.forEach(card => {
-        card.addEventListener('click', () => {
-            programCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            selectedProgramId = card.getAttribute('data-prog');
+    const allPrograms = getStorageItem('wrenchwise_programs', []);
+    const programs = allPrograms.filter(p => !p.disabled); // Hide disabled programs
+    
+    if (programs.length > 0 && (!selectedProgramId || !programs.some(p => p.id === selectedProgramId))) {
+        selectedProgramId = programs[0].id;
+    }
+    
+    const programGrid = document.getElementById('counselor-program-grid');
+    if (programGrid && programs.length > 0) {
+        programGrid.innerHTML = programs.map((p, idx) => {
+            const badge = p.id === 'aiml' ? 'Advanced AI/ML' : (p.id === 'fullstack' ? 'AI-Powered Full Stack' : `${p.id.toUpperCase()} Path`);
+            const desc = p.id === 'aiml' 
+                ? '7 progressive phases covering 5 industry AI paths. Master deep learning, Generative AI, and Agentic Systems, complete with hands-on capstones and full MLOps pipelines.'
+                : (p.id === 'fullstack'
+                    ? 'A 120-day intensive program mastering the MERN Stack, modern responsive design, authentication, cloud deployment, and advanced AI application integrations.'
+                    : `Upskill in ${p.name}. Features standard tools, comprehensive curriculum projects, and verified credentials.`);
+
+            return `
+                <div class="program-card ${p.id === selectedProgramId ? 'active' : ''}" data-prog="${p.id}" id="prog-card-${p.id}">
+                    <span class="program-badge">${badge}</span>
+                    <h4 class="program-title">${p.name.split(':')[0]}</h4>
+                    <p class="program-desc">${desc}</p>
+                    <div class="program-stats-row">
+                        <div class="prog-stat">
+                            <span class="prog-stat-label">Skills Stack</span>
+                            <span class="prog-stat-value">${p.skills.length} Technologies</span>
+                        </div>
+                        <div class="prog-stat">
+                            <span class="prog-stat-label">Projects Gained</span>
+                            <span class="prog-stat-value">${p.projects.length} Repositories</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const programCards = programGrid.querySelectorAll('.program-card');
+        programCards.forEach(card => {
+            card.addEventListener('click', () => {
+                selectedProgramId = card.getAttribute('data-prog');
+                programCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
         });
-    });
+    }
 
     // Submit button bindings
     document.getElementById('btn-run-analysis').addEventListener('click', () => {
@@ -425,10 +437,7 @@ function renderTransformationDashboard(container) {
             throw new Error(`Selected program path [${selectedProgramId}] could not be found in curriculum configuration.`);
         }
         const isAiml = program.id === 'aiml';
-        const benchmark = benchmarks[selectedProgramId];
-        if (!benchmark) {
-            throw new Error(`Target readiness benchmarks for program [${selectedProgramId}] could not be found.`);
-        }
+        const benchmark = benchmarks[selectedProgramId] || benchmarks['fullstack'] || { skillsCount: 10, projectsCount: 5, certificationsCount: 2, industryToolsCount: 5 };
 
         // 2. Run engines to get score comparison
         const comparison = getTransformationComparison(activeCandidate, program, benchmark, weights);
@@ -436,16 +445,16 @@ function renderTransformationDashboard(container) {
         const recruiterObs = getRecruiterObservations(activeCandidate, comparison.future.profile);
         const jobMatches = calculateJobMatching(activeCandidate, comparison.future.profile, selectedProgramId);
 
-        // Also calculate job matching for both programs (each with its own future profile) if they exist
-        const aimlProgram = programs.find(p => p.id === 'aiml');
-        const fullstackProgram = programs.find(p => p.id === 'fullstack');
+        // Also calculate job matching for both programs (each with its own future profile) if they exist and are active
+        const aimlProgram = allPrograms.find(p => p.id === 'aiml');
+        const fullstackProgram = allPrograms.find(p => p.id === 'fullstack');
         let aimlJobMatches = [];
         let fullstackJobMatches = [];
-        if (aimlProgram) {
+        if (aimlProgram && !aimlProgram.disabled) {
             const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
             aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
         }
-        if (fullstackProgram) {
+        if (fullstackProgram && !fullstackProgram.disabled) {
             const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
             fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
         }

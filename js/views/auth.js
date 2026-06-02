@@ -34,7 +34,7 @@ export function renderLoginView(container, onLoginSuccess) {
                         <input type="password" id="login-password" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
-                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); border:none;">
+                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
                     <span>Sign In</span>
                     <i data-lucide="arrow-right" style="margin-left: 8px;"></i>
                 </button>
@@ -66,7 +66,7 @@ export function renderLoginView(container, onLoginSuccess) {
                         <input type="email" id="req-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
-                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center;">
+                <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
                     <span>Create Access</span>
                     <i data-lucide="send" style="margin-left: 8px;"></i>
                 </button>

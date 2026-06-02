@@ -283,9 +283,14 @@ function renderProgramsPanel(container) {
                     <span style="font-size:0.75rem; color:var(--text-muted);">Separate certifications with commas</span>
                 </div>
                 
-                <button class="btn btn-primary" id="btn-save-program" style="padding:12px; align-self: flex-end;">
-                    <i data-lucide="check"></i> Save Program Configuration
-                </button>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                    <button class="btn btn-secondary" id="btn-toggle-program" style="padding:12px; border: 1px solid ${prog.disabled ? 'var(--success)' : 'var(--danger)'}; color: ${prog.disabled ? 'var(--success)' : 'var(--danger)'};">
+                        <i data-lucide="${prog.disabled ? 'power' : 'power-off'}"></i> ${prog.disabled ? 'Enable Program' : 'Disable Program'}
+                    </button>
+                    <button class="btn btn-primary" id="btn-save-program" style="padding:12px;">
+                        <i data-lucide="check"></i> Save Program Configuration
+                    </button>
+                </div>
             </div>
         `;
 
@@ -301,7 +306,24 @@ function renderProgramsPanel(container) {
             programs[activeProgIdx] = prog;
             setStorageItem('wrenchwise_programs', programs);
             showToast(`${prog.name} configuration updated successfully!`, "success");
+            renderProgramsPanel(container); // Re-render to update tab names
         });
+
+        // Toggle Disable Action
+        const btnToggle = document.getElementById('btn-toggle-program');
+        if (btnToggle) {
+            btnToggle.addEventListener('click', () => {
+                if (!prog.disabled && programs.filter(p => !p.disabled).length <= 1) {
+                    showToast("Cannot disable the last active program.", "warning");
+                    return;
+                }
+                prog.disabled = !prog.disabled;
+                programs[activeProgIdx] = prog;
+                setStorageItem('wrenchwise_programs', programs);
+                renderProgramsPanel(container);
+                showToast(`Program has been ${prog.disabled ? 'disabled' : 'enabled'}.`, "success");
+            });
+        }
     };
 
     container.innerHTML = `
@@ -323,10 +345,35 @@ function renderProgramsPanel(container) {
             </button>
         </div>
 
-        <div class="report-tabs" style="margin-bottom: 20px; overflow-x: auto; display: flex; gap: 8px; padding-bottom: 4px;">
+        <div class="report-tabs" style="margin-bottom: 20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; position: relative;">
             ${programs.map((p, idx) => `
-                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}" style="white-space: nowrap;">${p.name.split(':')[0]}</button>
+                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}" style="${p.disabled ? 'opacity: 0.5; text-decoration: line-through;' : ''}">${p.name.split(':')[0]}</button>
             `).join('')}
+            <button class="tab-btn" id="btn-add-program" style="background: rgba(0, 141, 155, 0.1); color: var(--primary);"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> Add Program</button>
+            
+            <div style="position: relative;">
+                <button class="tab-btn" id="btn-remove-program-trigger" style="background: rgba(239, 68, 68, 0.1); color: var(--danger);"><i data-lucide="trash-2" style="width: 14px; height: 14px;"></i> Remove Program</button>
+                <div id="remove-program-dropdown" style="display: none; position: absolute; top: 110%; right: 0; background: var(--bg-surface-solid); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: var(--shadow-xl); padding: 8px; min-width: 200px; z-index: 50;">
+                    <div style="font-size:0.75rem; color:var(--text-muted); padding:4px 12px; margin-bottom:4px; border-bottom:1px solid var(--border-color);">Select to permanently remove:</div>
+                    ${programs.map((p, idx) => `
+                        <div class="remove-prog-item" data-idx="${idx}" style="padding: 8px 12px; cursor: pointer; border-radius: 4px; display:flex; align-items:center; gap:8px; font-size:0.9rem; color:var(--text-main);" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'; this.style.color='var(--danger)';" onmouseout="this.style.background='transparent'; this.style.color='var(--text-main)';">
+                            <i data-lucide="x-circle" style="width: 14px; height: 14px;"></i> ${p.name}
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Custom Confirmation Modal -->
+        <div id="confirm-delete-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:var(--bg-surface-solid); padding:24px; border-radius:12px; max-width:400px; width:90%; box-shadow:var(--shadow-xl); text-align:center;">
+                <h3 style="color:var(--text-main); margin-bottom:16px;">Confirm Deletion</h3>
+                <p id="confirm-delete-msg" style="color:var(--text-muted); margin-bottom:24px;">Are you sure want to remove this program?</p>
+                <div style="display:flex; justify-content:center; gap:16px;">
+                    <button class="btn btn-secondary" id="btn-confirm-no" style="padding:8px 24px;">NO</button>
+                    <button class="btn btn-primary" id="btn-confirm-yes" style="padding:8px 24px; background:var(--danger); border-color:var(--danger);">YES</button>
+                </div>
+            </div>
         </div>
         
         <div id="program-curriculum-form-box">
@@ -347,7 +394,7 @@ function renderProgramsPanel(container) {
     }
 
     // Hook tab switches
-    const tabBtns = container.querySelectorAll('.tab-btn');
+    const tabBtns = container.querySelectorAll('.tab-btn:not(#btn-add-program)');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             activeProgIdx = parseInt(btn.getAttribute('data-idx'));
@@ -356,6 +403,79 @@ function renderProgramsPanel(container) {
             renderActiveProgramForm();
         });
     });
+
+    const btnAddProgram = document.getElementById('btn-add-program');
+    if (btnAddProgram) {
+        btnAddProgram.addEventListener('click', () => {
+            const newProgram = {
+                id: 'prog_' + Date.now(),
+                name: 'New Custom Program',
+                skills: [],
+                projects: [],
+                certifications: []
+            };
+            programs.push(newProgram);
+            setStorageItem('wrenchwise_programs', programs);
+            
+            // Switch to the newly created program tab
+            activeProgIdx = programs.length - 1;
+            renderProgramsPanel(container); // Re-render the panel to show the new tab
+            showToast("New program added. Please configure its details.", "success");
+        });
+    }
+
+    // Remove Program Dropdown Logic
+    const btnRemoveTrigger = document.getElementById('btn-remove-program-trigger');
+    const removeDropdown = document.getElementById('remove-program-dropdown');
+    
+    if (btnRemoveTrigger && removeDropdown) {
+        btnRemoveTrigger.addEventListener('click', () => {
+            removeDropdown.style.display = removeDropdown.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!btnRemoveTrigger.contains(e.target) && !removeDropdown.contains(e.target)) {
+                removeDropdown.style.display = 'none';
+            }
+        });
+
+        // Handle clicking a program to remove
+        const removeItems = removeDropdown.querySelectorAll('.remove-prog-item');
+        const modal = document.getElementById('confirm-delete-modal');
+        const msg = document.getElementById('confirm-delete-msg');
+        let indexToRemove = null;
+
+        removeItems.forEach(item => {
+            item.addEventListener('click', () => {
+                indexToRemove = parseInt(item.getAttribute('data-idx'));
+                if (programs.length <= 1) {
+                    showToast("Cannot remove the last remaining program.", "warning");
+                    removeDropdown.style.display = 'none';
+                    return;
+                }
+                msg.textContent = `Are you sure want to remove "${programs[indexToRemove].name}"?`;
+                modal.style.display = 'flex';
+                removeDropdown.style.display = 'none';
+            });
+        });
+
+        document.getElementById('btn-confirm-no').addEventListener('click', () => {
+            modal.style.display = 'none';
+            indexToRemove = null;
+        });
+
+        document.getElementById('btn-confirm-yes').addEventListener('click', () => {
+            if (indexToRemove !== null) {
+                programs.splice(indexToRemove, 1);
+                setStorageItem('wrenchwise_programs', programs);
+                activeProgIdx = 0;
+                renderProgramsPanel(container);
+                showToast("Program removed successfully.", "success");
+            }
+            modal.style.display = 'none';
+        });
+    }
 
     renderActiveProgramForm();
 }
