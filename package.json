@@ -2,7 +2,6 @@
   "name": "wrenchwise-employai",
   "version": "1.0.0",
   "description": "AI-Powered Employability Assessment & Career Transformation Platform",
-  "main": "index.html",
   "type": "module",
   "scripts": {
     "start": "serve -s .",
