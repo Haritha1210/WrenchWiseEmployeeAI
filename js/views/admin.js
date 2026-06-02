@@ -31,8 +31,7 @@ export function renderAdminView(container) {
                     <i data-lucide="users"></i>
                     <span>Manage Counselors</span>
                 </button>
-
-
+            </div>
 
             <!-- Right Sub-Content Panel -->
             <div class="glass-card" id="admin-sub-panel">
@@ -429,6 +428,3 @@ function renderCounselorsPanel(container) {
 
     renderCounselorTable();
 }
-
-/*
- 

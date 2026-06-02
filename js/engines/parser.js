@@ -312,6 +312,8 @@ async function extractTextFromDocx(arrayBuffer) {
     }
     const result = await window.mammoth.extractRawText({ arrayBuffer });
     return cleanExtractedText(result.value);
+}
+
 async function parseRawText(text, fileName) {
     // --- LLM Full-Profile Parsing Overhaul (Text Fallback for DOCX/TXT) ---
     let geminiApiKey = null;
