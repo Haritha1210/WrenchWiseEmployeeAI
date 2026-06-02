@@ -403,7 +403,7 @@ function renderCounselorsPanel(container) {
         <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="users" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Sales Counselors Directory</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Manage Sales Counselor access credentials and active demo permissions.</p>
         
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:24px;">
+        <div style="display:grid; grid-template-columns: 1fr; gap:24px;">
             <!-- Counselor List Table -->
             <div class="glass-card" style="padding:0; border:none; box-shadow:none; overflow-x:auto;">
                 <table class="config-table">
@@ -420,61 +420,10 @@ function renderCounselorsPanel(container) {
                     </tbody>
                 </table>
             </div>
-
-            <!-- Add Counselor Form -->
-            <div class="glass-card" style="background:rgba(255, 255, 255, 0.01);">
-                <h4 class="mb-16" style="color:var(--text-main);">Add Sales Counselor</h4>
-                <form id="add-counselor-form" onsubmit="return false;">
-                    <div class="form-group">
-                        <label class="form-label" for="add-sc-name">Full Name</label>
-                        <input type="text" id="add-sc-name" class="form-input" placeholder="e.g. Vicky Kaushal" style="padding-left:16px;" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="add-sc-email">Work Email</label>
-                        <input type="email" id="add-sc-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left:16px;" required>
-                    </div>
-                    <button class="btn btn-primary w-full mt-16" id="btn-add-sc">
-                        <i data-lucide="plus-circle"></i> Create Account
-                    </button>
-                </form>
-            </div>
         </div>
     `;
 
     renderCounselorTable();
-
-    // Add Counselor Logic
-    document.getElementById('btn-add-sc').addEventListener('click', () => {
-        const nameEl = document.getElementById('add-sc-name');
-        const emailEl = document.getElementById('add-sc-email');
-
-        const name = nameEl.value.trim();
-        const email = emailEl.value.trim();
-
-        if (!name || !email) {
-            showToast("Please enter a name and email.", "error");
-            return;
-        }
-
-        // Add to array
-        counselors.push({
-            id: "sc_" + Date.now(),
-            name: name,
-            email: email,
-            active: true,
-            assessmentsCount: 0,
-            enrollmentsCount: 0
-        });
-
-        setStorageItem('wrenchwise_counselors', counselors);
-        showToast("Sales counselor added successfully!", "success");
-
-        // Reset fields
-        nameEl.value = '';
-        emailEl.value = '';
-
-        renderCounselorTable();
-    });
 }
 
 /**
