@@ -5,8 +5,12 @@
   "main": "index.html",
   "type": "module",
   "scripts": {
-    "start": "npx http-server -c-1 -p 3000"
+    "start": "serve -s .",
+    "dev": "npx http-server -c-1 -p 3000",
+    "build": "echo 'No build step required'"
   },
-  "dependencies": {},
+  "dependencies": {
+    "serve": "^14.2.4"
+  },
   "devDependencies": {}
 }
