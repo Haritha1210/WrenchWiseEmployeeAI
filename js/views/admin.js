@@ -614,7 +614,7 @@ function renderAccessRequestsPanel(container) {
         });
     };
 
-    container.innerHTML = \`
+    container.innerHTML = `
         <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Access Requests</h3>
         <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Review and approve access requests for new Sales Counselors.</p>
         
@@ -633,7 +633,7 @@ function renderAccessRequestsPanel(container) {
                 </tbody>
             </table>
         </div>
-    \`;
+    `;
 
     renderTable();
 }
