@@ -856,16 +856,16 @@ function renderTransformationDashboard(container) {
                             {
                                 label: 'Original Profile',
                                 data: originalScores,
-                                backgroundColor: 'rgba(0, 141, 155, 0.3)',
-                                borderColor: '#008d9b',
+                                backgroundColor: 'rgba(100, 116, 139, 0.4)',
+                                borderColor: '#64748b',
                                 borderWidth: 1.5,
                                 borderRadius: 6
                             },
                             {
                                 label: 'Projected Transformed Profile',
                                 data: projectedScores,
-                                backgroundColor: 'rgba(0, 181, 197, 0.35)',
-                                borderColor: '#00b5c5',
+                                backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                                borderColor: '#10b981',
                                 borderWidth: 1.5,
                                 borderRadius: 6
                             }

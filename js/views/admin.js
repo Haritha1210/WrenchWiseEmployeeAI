@@ -32,7 +32,14 @@ export function renderAdminView(container) {
                     <span>Manage Counselors</span>
                 </button>
             </div>
-
+            
+            <div style="margin-top: auto; padding: 16px;">
+                <button id="btn-switch-counselor" class="btn btn-secondary w-full" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <i data-lucide="external-link"></i>
+                    <span>Counselor Panel</span>
+                </button>
+            </div>
+            
             <!-- Right Sub-Content Panel -->
             <div class="glass-card" id="admin-sub-panel">
                 <!-- Injected dynamically based on sub-selection -->
@@ -58,6 +65,12 @@ export function renderAdminView(container) {
 
     // Render Initial Sub-Section
     renderActiveSubSection();
+
+    // Switch to Counselor Panel Button Logic
+    document.getElementById('btn-switch-counselor').addEventListener('click', () => {
+        setStorageItem('wrenchwise_session_role', 'counselor');
+        window.location.reload();
+    });
 }
 
 /**
@@ -382,9 +395,19 @@ function renderCounselorsPanel(container) {
         tableBody.querySelectorAll('.btn-toggle').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.getAttribute('data-index'));
-                counselors[idx].active = !counselors[idx].active;
+                const c = counselors[idx];
+                const wasActive = c.active;
+                c.active = !wasActive;
                 setStorageItem('wrenchwise_counselors', counselors);
-                showToast(`Counselor ${counselors[idx].name} ${counselors[idx].active ? 'enabled' : 'disabled'}!`, "success");
+                showToast(`Counselor ${c.name} ${c.active ? 'enabled' : 'disabled'}!`, "success");
+                
+                // Mailto for new approvals
+                if (!wasActive && c.active && c.email) {
+                    const subject = encodeURIComponent("Wrench Wise EmployAI - Account Access Approved");
+                    const body = encodeURIComponent(`Hi ${c.name},\n\nYour request for access to the Wrench Wise EmployAI platform has been approved!\n\nYou can now log in using your credentials.\n\nBest regards,\nAdmin Team`);
+                    window.open(`mailto:${c.email}?subject=${subject}&body=${body}`, '_blank');
+                }
+                
                 renderCounselorTable();
             });
         });
