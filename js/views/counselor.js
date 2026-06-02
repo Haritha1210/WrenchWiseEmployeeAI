@@ -446,8 +446,8 @@ function renderTransformationDashboard(container) {
         const jobMatches = calculateJobMatching(activeCandidate, comparison.future.profile, selectedProgramId);
 
         // Also calculate job matching for both programs (each with its own future profile) if they exist and are active
-        const aimlProgram = allPrograms.find(p => p.id === 'aiml');
-        const fullstackProgram = allPrograms.find(p => p.id === 'fullstack');
+        const aimlProgram = programs.find(p => p.id === 'aiml');
+        const fullstackProgram = programs.find(p => p.id === 'fullstack');
         let aimlJobMatches = [];
         let fullstackJobMatches = [];
         if (aimlProgram && !aimlProgram.disabled) {
