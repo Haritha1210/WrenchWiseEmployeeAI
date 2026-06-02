@@ -297,8 +297,8 @@ function renderProgramsPanel(container) {
                 </div>
                 
                 <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
-                    <button class="btn btn-secondary" id="btn-delete-program" style="padding:12px; border: 1px solid var(--danger); color: var(--danger);">
-                        <i data-lucide="trash-2"></i> Delete
+                    <button class="btn btn-secondary" id="btn-toggle-program" style="padding:12px; border: 1px solid ${prog.disabled ? 'var(--success)' : 'var(--danger)'}; color: ${prog.disabled ? 'var(--success)' : 'var(--danger)'};">
+                        <i data-lucide="${prog.disabled ? 'power' : 'power-off'}"></i> ${prog.disabled ? 'Enable Program' : 'Disable Program'}
                     </button>
                     <button class="btn btn-primary" id="btn-save-program" style="padding:12px;">
                         <i data-lucide="check"></i> Save Program Configuration
@@ -322,19 +322,19 @@ function renderProgramsPanel(container) {
             renderProgramsPanel(container); // Re-render to update tab names
         });
 
-        // Delete Action
-        const btnDelete = document.getElementById('btn-delete-program');
-        if (btnDelete) {
-            btnDelete.addEventListener('click', () => {
-                if (programs.length <= 1) {
-                    showToast("Cannot delete the last remaining program.", "warning");
+        // Toggle Disable Action
+        const btnToggle = document.getElementById('btn-toggle-program');
+        if (btnToggle) {
+            btnToggle.addEventListener('click', () => {
+                if (!prog.disabled && programs.filter(p => !p.disabled).length <= 1) {
+                    showToast("Cannot disable the last active program.", "warning");
                     return;
                 }
-                programs.splice(activeProgIdx, 1);
+                prog.disabled = !prog.disabled;
+                programs[activeProgIdx] = prog;
                 setStorageItem('wrenchwise_programs', programs);
-                activeProgIdx = 0;
                 renderProgramsPanel(container);
-                showToast("Program deleted successfully.", "success");
+                showToast(`Program has been ${prog.disabled ? 'disabled' : 'enabled'}.`, "success");
             });
         }
     };
@@ -345,7 +345,7 @@ function renderProgramsPanel(container) {
         
         <div class="report-tabs" style="margin-bottom: 20px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
             ${programs.map((p, idx) => `
-                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}">${p.name}</button>
+                <button class="tab-btn ${idx === activeProgIdx ? 'active' : ''}" data-idx="${idx}" style="${p.disabled ? 'opacity: 0.5; text-decoration: line-through;' : ''}">${p.name}</button>
             `).join('')}
             <button class="tab-btn" id="btn-add-program" style="background: rgba(0, 141, 155, 0.1); color: var(--primary);"><i data-lucide="plus" style="width: 14px; height: 14px;"></i> Add Program</button>
         </div>

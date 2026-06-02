@@ -351,7 +351,9 @@ function renderSnapshotStep(container) {
     });
 
     // Program selection bindings
-    const programs = getStorageItem('wrenchwise_programs', []);
+    const allPrograms = getStorageItem('wrenchwise_programs', []);
+    const programs = allPrograms.filter(p => !p.disabled); // Hide disabled programs
+    
     if (programs.length > 0) {
         selectedProgramId = programs[0].id;
     }
@@ -433,14 +435,14 @@ function renderTransformationDashboard(container) {
         // Also calculate job matching for all programs
         let aimlJobMatches = [];
         let fullstackJobMatches = [];
-        const aimlProgram = programs.find(p => p.id === 'aiml');
-        const fullstackProgram = programs.find(p => p.id === 'fullstack');
+        const aimlProgram = allPrograms.find(p => p.id === 'aiml');
+        const fullstackProgram = allPrograms.find(p => p.id === 'fullstack');
         
-        if (aimlProgram) {
+        if (aimlProgram && !aimlProgram.disabled) {
             const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
             aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
         }
-        if (fullstackProgram) {
+        if (fullstackProgram && !fullstackProgram.disabled) {
             const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
             fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
         }
