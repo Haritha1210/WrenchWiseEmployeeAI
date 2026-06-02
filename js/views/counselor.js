@@ -244,38 +244,8 @@ function renderSnapshotStep(container) {
                 <!-- Program Selection Section -->
                 <div class="program-selection-container" style="border-top:1px solid var(--border-color); padding-top:24px; margin-top: 24px; width:100%;">
                     <h3 style="align-self: flex-start; margin-bottom: 16px; font-family: var(--font-heading);">Select Candidate Career Program Path</h3>
-                    <div class="program-cards-grid">
-                        <div class="program-card active" data-prog="aiml" id="prog-card-aiml">
-                            <span class="program-badge">Advanced AI/ML</span>
-                            <h4 class="program-title">AI/ML 7.0: Advanced Track</h4>
-                            <p class="program-desc">7 progressive phases covering 5 industry AI paths. Master deep learning, Generative AI, and Agentic Systems, complete with hands-on capstones and full MLOps pipelines.</p>
-                            <div class="program-stats-row">
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Skills Stack</span>
-                                    <span class="prog-stat-value">15 Technologies</span>
-                                </div>
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Projects Gained</span>
-                                    <span class="prog-stat-value">15+ Repositories</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="program-card" data-prog="fullstack" id="prog-card-fullstack">
-                            <span class="program-badge">AI-Powered Full Stack</span>
-                            <h4 class="program-title">Full Stack 4.0: MERN Track</h4>
-                            <p class="program-desc">A 120-day intensive program mastering the MERN Stack, modern responsive design, authentication, cloud deployment, and advanced AI application integrations.</p>
-                            <div class="program-stats-row">
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Skills Stack</span>
-                                    <span class="prog-stat-value">12 Technologies</span>
-                                </div>
-                                <div class="prog-stat">
-                                    <span class="prog-stat-label">Projects Gained</span>
-                                    <span class="prog-stat-value">6 Repositories</span>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="program-cards-grid" id="counselor-program-grid">
+                        <!-- Rendered dynamically below -->
                     </div>
 
                     <button class="btn btn-primary w-full" id="btn-run-analysis" style="padding:14px; font-size:1rem; margin-top: 24px;">
@@ -381,20 +351,40 @@ function renderSnapshotStep(container) {
     });
 
     // Program selection bindings
-    const cardAiml = document.getElementById('prog-card-aiml');
-    const cardFullstack = document.getElementById('prog-card-fullstack');
+    const programs = getStorageItem('wrenchwise_programs', []);
+    if (programs.length > 0) {
+        selectedProgramId = programs[0].id;
+    }
     
-    cardAiml.addEventListener('click', () => {
-        selectedProgramId = 'aiml';
-        cardAiml.classList.add('active');
-        cardFullstack.classList.remove('active');
-    });
+    const programGrid = document.getElementById('counselor-program-grid');
+    if (programGrid && programs.length > 0) {
+        programGrid.innerHTML = programs.map((p, idx) => `
+            <div class="program-card ${idx === 0 ? 'active' : ''}" data-prog="${p.id}" id="prog-card-${p.id}">
+                <span class="program-badge">${p.name.split(':')[0]}</span>
+                <h4 class="program-title">${p.name}</h4>
+                <p class="program-desc">Custom Program Path configured in System Settings.</p>
+                <div class="program-stats-row">
+                    <div class="prog-stat">
+                        <span class="prog-stat-label">Skills Stack</span>
+                        <span class="prog-stat-value">${p.skills.length} Technologies</span>
+                    </div>
+                    <div class="prog-stat">
+                        <span class="prog-stat-label">Projects Gained</span>
+                        <span class="prog-stat-value">${p.projects.length} Repositories</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
 
-    cardFullstack.addEventListener('click', () => {
-        selectedProgramId = 'fullstack';
-        cardFullstack.classList.add('active');
-        cardAiml.classList.remove('active');
-    });
+        const programCards = programGrid.querySelectorAll('.program-card');
+        programCards.forEach(card => {
+            card.addEventListener('click', () => {
+                selectedProgramId = card.getAttribute('data-prog');
+                programCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+    }
 
     // Submit button bindings
     document.getElementById('btn-run-analysis').addEventListener('click', () => {
@@ -432,10 +422,7 @@ function renderTransformationDashboard(container) {
             throw new Error(`Selected program path [${selectedProgramId}] could not be found in curriculum configuration.`);
         }
         const isAiml = program.id === 'aiml';
-        const benchmark = benchmarks[selectedProgramId];
-        if (!benchmark) {
-            throw new Error(`Target readiness benchmarks for program [${selectedProgramId}] could not be found.`);
-        }
+        const benchmark = benchmarks[selectedProgramId] || benchmarks['fullstack'] || { skillsCount: 10, projectsCount: 5, certificationsCount: 2, industryToolsCount: 5 };
 
         // 2. Run engines to get score comparison
         const comparison = getTransformationComparison(activeCandidate, program, benchmark, weights);
@@ -443,13 +430,20 @@ function renderTransformationDashboard(container) {
         const recruiterObs = getRecruiterObservations(activeCandidate, comparison.future.profile);
         const jobMatches = calculateJobMatching(activeCandidate, comparison.future.profile, selectedProgramId);
 
-        // Also calculate job matching for both programs (each with its own future profile)
+        // Also calculate job matching for all programs
+        let aimlJobMatches = [];
+        let fullstackJobMatches = [];
         const aimlProgram = programs.find(p => p.id === 'aiml');
         const fullstackProgram = programs.find(p => p.id === 'fullstack');
-        const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
-        const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
-        const aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
-        const fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
+        
+        if (aimlProgram) {
+            const aimlFuture = simulateFutureProfile(activeCandidate, aimlProgram);
+            aimlJobMatches = calculateJobMatching(activeCandidate, aimlFuture, 'aiml');
+        }
+        if (fullstackProgram) {
+            const fullstackFuture = simulateFutureProfile(activeCandidate, fullstackProgram);
+            fullstackJobMatches = calculateJobMatching(activeCandidate, fullstackFuture, 'fullstack');
+        }
 
         // Save lead record in history (Step 17)
         saveAssessedLead(comparison);

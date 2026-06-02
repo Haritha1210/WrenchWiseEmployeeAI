@@ -296,9 +296,14 @@ function renderProgramsPanel(container) {
                     <span style="font-size:0.75rem; color:var(--text-muted);">Separate certifications with commas</span>
                 </div>
                 
-                <button class="btn btn-primary" id="btn-save-program" style="padding:12px; align-self: flex-end;">
-                    <i data-lucide="check"></i> Save Program Configuration
-                </button>
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px;">
+                    <button class="btn btn-secondary" id="btn-delete-program" style="padding:12px; border: 1px solid var(--danger); color: var(--danger);">
+                        <i data-lucide="trash-2"></i> Delete
+                    </button>
+                    <button class="btn btn-primary" id="btn-save-program" style="padding:12px;">
+                        <i data-lucide="check"></i> Save Program Configuration
+                    </button>
+                </div>
             </div>
         `;
 
@@ -314,7 +319,24 @@ function renderProgramsPanel(container) {
             programs[activeProgIdx] = prog;
             setStorageItem('wrenchwise_programs', programs);
             showToast(`${prog.name} configuration updated successfully!`, "success");
+            renderProgramsPanel(container); // Re-render to update tab names
         });
+
+        // Delete Action
+        const btnDelete = document.getElementById('btn-delete-program');
+        if (btnDelete) {
+            btnDelete.addEventListener('click', () => {
+                if (programs.length <= 1) {
+                    showToast("Cannot delete the last remaining program.", "warning");
+                    return;
+                }
+                programs.splice(activeProgIdx, 1);
+                setStorageItem('wrenchwise_programs', programs);
+                activeProgIdx = 0;
+                renderProgramsPanel(container);
+                showToast("Program deleted successfully.", "success");
+            });
+        }
     };
 
     container.innerHTML = `
