@@ -544,6 +544,6 @@ function renderAddCounselorPanel(container) {
         document.getElementById('new-sc-name').value = '';
         document.getElementById('new-sc-email').value = '';
         
-        showToast(\`Access granted! \${name} has been added successfully.\`, "success");
+        showToast(`Access granted! ${name} has been added successfully.`, "success");
     });
 }
