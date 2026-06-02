@@ -102,36 +102,7 @@ function bindShellEvents() {
         logout();
     });
 
-    // Settings Modal Action
-    const settingsBtn = document.getElementById('btn-settings');
-    const settingsModal = document.getElementById('settings-modal');
-    const closeSettings = document.getElementById('close-settings');
-    const saveSettings = document.getElementById('save-settings');
-    const geminiInput = document.getElementById('gemini-api-key');
 
-    if (settingsBtn && settingsModal) {
-        settingsBtn.addEventListener('click', () => {
-            geminiInput.value = getStorageItem('wrenchwise_gemini_api_key', '');
-            settingsModal.style.display = 'flex';
-        });
-
-        closeSettings.addEventListener('click', () => {
-            settingsModal.style.display = 'none';
-        });
-
-        saveSettings.addEventListener('click', () => {
-            setStorageItem('wrenchwise_gemini_api_key', geminiInput.value.trim());
-            settingsModal.style.display = 'none';
-            showToast('Settings saved successfully', 'success');
-        });
-        
-        // Close modal on outside click
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) {
-                settingsModal.style.display = 'none';
-            }
-        });
-    }
 }
 
 /**

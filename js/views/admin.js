@@ -32,11 +32,7 @@ export function renderAdminView(container) {
                     <span>Manage Counselors</span>
                 </button>
 
-                <button class="admin-menu-item" data-sub="settings">
-                    <i data-lucide="settings"></i>
-                    <span>System Settings</span>
-                </button>
-            </div>
+
 
             <!-- Right Sub-Content Panel -->
             <div class="glass-card" id="admin-sub-panel">
@@ -80,8 +76,6 @@ function renderActiveSubSection() {
         renderProgramsPanel(panel);
     } else if (activeSubSection === 'counselors') {
         renderCounselorsPanel(panel);
-    } else if (activeSubSection === 'settings') {
-        renderSettingsPanel(panel);
     }
 }
 
@@ -436,63 +430,5 @@ function renderCounselorsPanel(container) {
     renderCounselorTable();
 }
 
-/**
- * 5. SYSTEM SETTINGS PANEL
- */
-function renderSettingsPanel(container) {
-    const storedKey = localStorage.getItem('wrenchwise_gemini_key');
-    let currentKey = "";
-    if (storedKey && storedKey !== 'undefined') {
-        try {
-            currentKey = JSON.parse(storedKey);
-        } catch (e) {
-            currentKey = storedKey;
-        }
-    }
-    
-    container.innerHTML = `
-        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="settings" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>System Settings</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure backend integrations and system-wide settings. Changes are stored locally.</p>
-        
-        <form id="settings-form" onsubmit="return false;">
-            <div class="form-group" style="margin-bottom: 20px;">
-                <label class="form-label" for="settings-gemini-key">Gemini API Key</label>
-                <div style="position: relative; display: flex; align-items: center;">
-                    <input type="password" id="settings-gemini-key" class="form-input" value="${currentKey || ''}" placeholder="Enter Gemini API Key" style="padding-left:16px; padding-right: 48px; width: 100%;">
-                    <button type="button" id="btn-toggle-key-visibility" class="btn-icon-only" style="position: absolute; right: 10px; background: transparent; border: none; cursor: pointer; color: var(--text-muted);">
-                        <i data-lucide="eye"></i>
-                    </button>
-                </div>
-                <span style="font-size:0.75rem; color:var(--text-muted); display: block; margin-top: 8px;">Used client-side to query Gemini 1.5 Flash for high-accuracy resume parsing. Fallback key will be used if left empty.</span>
-            </div>
-            
-            <button class="btn btn-primary w-full mt-24" id="btn-save-settings" style="padding:12px;">
-                <i data-lucide="save"></i> Save Settings
-            </button>
-        </form>
-    `;
-
-    if (window.lucide) window.lucide.createIcons();
-
-    // Toggle Visibility
-    const keyInput = document.getElementById('settings-gemini-key');
-    const toggleBtn = document.getElementById('btn-toggle-key-visibility');
-    toggleBtn.addEventListener('click', () => {
-        const isPassword = keyInput.getAttribute('type') === 'password';
-        keyInput.setAttribute('type', isPassword ? 'text' : 'password');
-        toggleBtn.innerHTML = `<i data-lucide="${isPassword ? 'eye-off' : 'eye'}"></i>`;
-        if (window.lucide) window.lucide.createIcons();
-    });
-
-    // Save Action
-    document.getElementById('btn-save-settings').addEventListener('click', () => {
-        const keyVal = keyInput.value.trim();
-        if (keyVal) {
-            setStorageItem('wrenchwise_gemini_key', keyVal);
-            showToast("Gemini API key updated successfully!", "success");
-        } else {
-            localStorage.removeItem('wrenchwise_gemini_key');
-            showToast("Gemini API key cleared. Using default key fallback.", "info");
-        }
-    });
-}
+/*
+ 

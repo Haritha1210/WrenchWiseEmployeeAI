@@ -54,11 +54,25 @@ function sanitizeParsedProfile(parsed, fileName) {
 
 export function parseResumeFile(file) {
     return new Promise(async (resolve, reject) => {
-        let geminiApiKey = null;
-        try {
-            geminiApiKey = localStorage.getItem('wrenchwise_gemini_api_key');
-            if (geminiApiKey) geminiApiKey = JSON.parse(geminiApiKey);
-        } catch(e) {}
+        async function fetchGeminiKey() {
+            try {
+                const res = await fetch('/api/get-gemini-key');
+                if (res.ok) {
+                    const data = await res.json();
+                    return data.key;
+                }
+            } catch (e) {
+                console.warn("Could not fetch API key from backend");
+            }
+            return null;
+        }
+
+        let geminiApiKey = await fetchGeminiKey();
+        
+        // Fallback placeholder check (ensure the user replaces this via environment variables)
+        if (!geminiApiKey) {
+            geminiApiKey = 'AIzaSy_YOUR_FALLBACK_KEY_IF_NEEDED'; 
+        }
 
         const fileExtension = file.name.split('.').pop().toLowerCase();
         const supportedMimeTypes = {
@@ -298,15 +312,22 @@ async function extractTextFromDocx(arrayBuffer) {
     }
     const result = await window.mammoth.extractRawText({ arrayBuffer });
     return cleanExtractedText(result.value);
-}
-
 async function parseRawText(text, fileName) {
     // --- LLM Full-Profile Parsing Overhaul (Text Fallback for DOCX/TXT) ---
     let geminiApiKey = null;
     try {
-        geminiApiKey = localStorage.getItem('wrenchwise_gemini_api_key');
-        if (geminiApiKey) geminiApiKey = JSON.parse(geminiApiKey);
-    } catch(e) {}
+        const res = await fetch('/api/get-gemini-key');
+        if (res.ok) {
+            const data = await res.json();
+            geminiApiKey = data.key;
+        }
+    } catch (e) {
+        console.warn("Could not fetch API key from backend");
+    }
+    
+    if (!geminiApiKey) {
+        geminiApiKey = 'AIzaSy_YOUR_FALLBACK_KEY_IF_NEEDED'; 
+    }
 
     if (geminiApiKey) {
         try {

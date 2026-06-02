@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -10,6 +11,11 @@ const PORT = process.env.PORT || 3000;
 
 // Serve static files from the current directory
 app.use(express.static(__dirname));
+
+// API Route to securely fetch Gemini Key from environment variable
+app.get('/api/get-gemini-key', (req, res) => {
+    res.json({ key: process.env.GEMINI_API_KEY });
+});
 
 // For SPA routing: send all unmatched requests to index.html
 app.use((req, res) => {

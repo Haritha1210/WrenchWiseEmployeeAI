@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
     <!-- Custom Style Sheet -->
-    <link rel="stylesheet" href="css/styles.css?v=2.0.1">
+    <link rel="stylesheet" href="css/styles.css?v=3.0.0">
 </head>
 <body class="light-mode-theme">
     <!-- App Root Container -->
@@ -54,9 +54,6 @@
                     <h1 id="page-title" class="page-title" style="font-size: 1.2rem; border-left: 1px solid var(--border-color); padding-left: 20px;">Dashboard</h1>
                 </div>
                 <div class="header-right">
-                    <button id="btn-settings" class="btn-icon" title="Settings" style="background:none; border:none; color:var(--text-light); cursor:pointer; padding: 8px; margin-right: 8px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); transition: background-color 0.2s;">
-                        <i data-lucide="settings"></i>
-                    </button>
                     <div class="role-badge" id="role-badge">Counselor</div>
                     <div class="notification-bell">
                         <i data-lucide="bell"></i>
@@ -95,31 +92,12 @@
         </defs>
     </svg>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="modal-overlay hidden" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000;">
-        <div class="modal-content" style="background: var(--surface); border-radius: var(--radius-lg); padding: 24px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg);">
-            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text-dark);">Settings</h2>
-                <button id="close-settings" class="btn-close" style="background: none; border: none; cursor: pointer; color: var(--text-light);"><i data-lucide="x"></i></button>
-            </div>
-            <div class="modal-body" style="margin-bottom: 24px;">
-                <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
-                    <label class="form-label" for="gemini-api-key" style="font-size: 0.9rem; font-weight: 600; color: var(--text-dark);">Gemini API Key</label>
-                    <input type="password" id="gemini-api-key" class="form-input" placeholder="AIzaSy..." autocomplete="off" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: monospace; width: 100%;">
-                    <span class="field-hint" style="font-size: 0.8rem; color: var(--text-light);">Required for LLM-powered parsing. Key is saved locally.</span>
-                </div>
-            </div>
-            <div class="modal-footer" style="display: flex; justify-content: flex-end;">
-                <button id="save-settings" class="btn btn-primary" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Save Settings</button>
-            </div>
-        </div>
-    </div>
 
     <!-- Notification Toast -->
     <div id="toast-container" class="toast-container"></div>
 
     <!-- Scripts -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script type="module" src="js/app.js?v=2.2"></script>
+    <script type="module" src="js/app.js?v=3.0.0"></script>
 </body>
 </html>
