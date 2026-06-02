@@ -16,7 +16,7 @@ export function renderLoginView(container, onLoginSuccess) {
         let title, subtitle, icon, formContent, footerContent;
 
         if (mode === 'admin_login') {
-            title = 'System Administration';
+            title = 'EMPLOYEE AI LOGIN';
             subtitle = 'Sign in with your secure credentials';
             icon = 'shield-check';
             formContent = `
@@ -86,9 +86,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
                     
                     <div class="login-header" style="text-align: center; margin-bottom: 32px;">
-                        <div class="login-logo" style="width: 64px; height: 64px; background: rgba(0, 168, 150, 0.1); color: var(--primary); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: inset 0 0 0 1px rgba(0,168,150,0.2);">
-                            <i data-lucide="${icon}" style="width: 32px; height: 32px;"></i>
-                        </div>
+                        <img src="assets/logo.png" alt="Wrench Wise EmployAI" style="width: 100%; max-width: 260px; height: auto; margin: 0 auto 20px auto; display: block;">
                         <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${title}</h2>
                         <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.5;">${subtitle}</p>
                     </div>
