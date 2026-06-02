@@ -71,18 +71,20 @@ function init() {
 
     // If no session exists, or if the session is Admin (we don't want Admin to persist on reload)
     if (!savedUser || !savedRole || savedRole === 'admin') {
-        const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
-        const defaultSC = counselors.find(c => c.active) || counselors[0];
-        savedUser = defaultSC;
-        savedRole = 'counselor';
-        setStorageItem('wrenchwise_session_user', savedUser);
-        setStorageItem('wrenchwise_session_role', savedRole);
+        savedUser = null;
+        savedRole = null;
+        localStorage.removeItem('wrenchwise_session_user');
+        localStorage.removeItem('wrenchwise_session_role');
     }
 
     // Bind Core Shell UI Event Listeners
     bindShellEvents();
 
-    loginSuccess(savedUser, savedRole);
+    if (savedUser && savedRole) {
+        loginSuccess(savedUser, savedRole);
+    } else {
+        navigate('login');
+    }
 }
 
 /**
@@ -170,8 +172,7 @@ function logout() {
         currentRole = null;
         init(); // Re-inits default counselor session
         showToast("Logged out of Admin.", "info");
-    } else {
-        // Counselors clicking Admin Login go to login page
+        // Counselors clicking Admin Login go to login page (now just logs out everyone to login)
         currentUser = null;
         currentRole = null;
         
