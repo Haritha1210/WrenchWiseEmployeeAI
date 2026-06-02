@@ -31,10 +31,7 @@ export function renderAdminView(container) {
                     <i data-lucide="users"></i>
                     <span>Manage Counselors</span>
                 </button>
-                <button class="admin-menu-item" data-sub="add-counselor">
-                    <i data-lucide="user-plus"></i>
-                    <span>Give Access</span>
-                </button>
+
                 <button class="admin-menu-item" data-sub="settings">
                     <i data-lucide="settings"></i>
                     <span>System Settings</span>
@@ -83,8 +80,6 @@ function renderActiveSubSection() {
         renderProgramsPanel(panel);
     } else if (activeSubSection === 'counselors') {
         renderCounselorsPanel(panel);
-    } else if (activeSubSection === 'add-counselor') {
-        renderAddCounselorPanel(panel);
     } else if (activeSubSection === 'settings') {
         renderSettingsPanel(panel);
     }
@@ -499,66 +494,5 @@ function renderSettingsPanel(container) {
             localStorage.removeItem('wrenchwise_gemini_key');
             showToast("Gemini API key cleared. Using default key fallback.", "info");
         }
-    });
-}
-
-/**
- * 6. ADD COUNSELOR PANEL (GIVE ACCESS)
- */
-function renderAddCounselorPanel(container) {
-    container.innerHTML = `
-        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Give Access</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Provide access permission by adding a new Sales Counselor directly.</p>
-        
-        <form id="add-counselor-form" onsubmit="return false;" class="glass-card" style="padding:24px;">
-            <div class="form-group" style="margin-bottom: 16px;">
-                <label class="form-label" for="new-sc-name">Counselor Full Name</label>
-                <input type="text" id="new-sc-name" class="form-input" placeholder="e.g., John Doe" required style="width:100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-            </div>
-            
-            <div class="form-group" style="margin-bottom: 24px;">
-                <label class="form-label" for="new-sc-email">Email Address</label>
-                <input type="email" id="new-sc-email" class="form-input" placeholder="john.doe@wrenchwise.com" required style="width:100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
-            </div>
-            
-            <button type="submit" class="btn btn-primary w-full" style="padding:12px;">
-                <i data-lucide="user-plus"></i> Grant Access Permission
-            </button>
-        </form>
-    `;
-
-    if (window.lucide) window.lucide.createIcons();
-
-    document.getElementById('add-counselor-form').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const name = document.getElementById('new-sc-name').value.trim();
-        const email = document.getElementById('new-sc-email').value.trim();
-        
-        if (!name || !email) return;
-
-        let counselors = getStorageItem('wrenchwise_counselors', []);
-        
-        // Ensure email is unique
-        if (counselors.find(c => c.email.toLowerCase() === email.toLowerCase())) {
-            showToast("A counselor with this email already exists.", "error");
-            return;
-        }
-
-        const newId = "sc_" + Date.now();
-        counselors.push({
-            id: newId,
-            name: name,
-            email: email,
-            active: true,
-            assessmentsCount: 0,
-            enrollmentsCount: 0
-        });
-
-        setStorageItem('wrenchwise_counselors', counselors);
-        
-        document.getElementById('new-sc-name').value = '';
-        document.getElementById('new-sc-email').value = '';
-        
-        showToast(`Access granted! ${name} has been added successfully.`, "success");
     });
 }
