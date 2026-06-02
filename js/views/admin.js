@@ -243,7 +243,6 @@ function renderBenchmarksPanel(container) {
         showToast("Benchmarks updated successfully!", "success");
     });
 }
-}
 
 /**
  * 3. PROGRAMS MANAGEMENT PANEL
