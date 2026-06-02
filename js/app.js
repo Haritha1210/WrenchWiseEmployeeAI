@@ -69,7 +69,8 @@ function init() {
     let savedUser = getStorageItem('wrenchwise_session_user', null);
     let savedRole = getStorageItem('wrenchwise_session_role', null);
 
-    if (!savedUser || !savedRole) {
+    // If no session exists, or if the session is Admin (we don't want Admin to persist on reload)
+    if (!savedUser || !savedRole || savedRole === 'admin') {
         const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
         const defaultSC = counselors.find(c => c.active) || counselors[0];
         savedUser = defaultSC;
