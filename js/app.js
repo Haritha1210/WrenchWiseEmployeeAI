@@ -163,9 +163,10 @@ function loginSuccess(user, role) {
     document.querySelector('.app-header').classList.remove('hidden');
     
     // Set Profile details in Sidebar footer
-    document.getElementById('nav-user-name').textContent = user.name;
+    const displayName = user ? user.name : "Guest Counselor";
+    document.getElementById('nav-user-name').textContent = displayName;
     document.getElementById('nav-user-role').textContent = role === 'admin' ? 'System Administrator' : 'Sales Counselor';
-    document.getElementById('nav-user-avatar').textContent = user.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('nav-user-avatar').textContent = displayName.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase();
     
     // Update topbar role indicator badge
     const badge = document.getElementById('role-badge');

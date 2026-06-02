@@ -183,12 +183,7 @@ export const SAMPLE_RESUMES = [
     }
 ];
 
-export const INITIAL_COUNSELORS = [
-    { id: "sc_01", name: "Neha Verma", email: "neha.verma@wrenchwise.com", active: true, assessmentsCount: 42, enrollmentsCount: 15 },
-    { id: "sc_02", name: "Rahul Sharma", email: "rahul.sharma@wrenchwise.com", active: true, assessmentsCount: 35, enrollmentsCount: 14 },
-    { id: "sc_03", name: "Pooja Mehta", email: "pooja.mehta@wrenchwise.com", active: true, assessmentsCount: 28, enrollmentsCount: 8 },
-    { id: "sc_04", name: "Kunal Gupta", email: "kunal.gupta@wrenchwise.com", active: false, assessmentsCount: 12, enrollmentsCount: 3 }
-];
+export const INITIAL_COUNSELORS = [];
 
 // Seed leads data over the last 30 days to build analytics
 export const INITIAL_LEADS = [
