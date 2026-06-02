@@ -33,13 +33,6 @@ export function renderAdminView(container) {
                 </button>
             </div>
             
-            <div style="margin-top: auto; padding: 16px;">
-                <button id="btn-switch-counselor" class="btn btn-secondary w-full" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <i data-lucide="external-link"></i>
-                    <span>Counselor Panel</span>
-                </button>
-            </div>
-            
             <!-- Right Sub-Content Panel -->
             <div class="glass-card" id="admin-sub-panel">
                 <!-- Injected dynamically based on sub-selection -->
@@ -65,15 +58,6 @@ export function renderAdminView(container) {
 
     // Render Initial Sub-Section
     renderActiveSubSection();
-
-    // Switch to Counselor Panel Button Logic
-    document.getElementById('btn-switch-counselor').addEventListener('click', () => {
-        if (typeof window.appNavigate === 'function') {
-            window.appNavigate('counselor');
-        } else {
-            showToast("Navigation error. Please refresh the page.", "error");
-        }
-    });
 }
 
 /**
