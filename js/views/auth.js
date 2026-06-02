@@ -151,7 +151,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 });
                 
                 setStorageItem('wrenchwise_counselors', counselors);
-                showToast(\`Access granted! \${name} has been added to the system.\`, "success");
+                showToast(`Access granted! ${name} has been added to the system.`, "success");
                 
                 document.getElementById('req-name').value = '';
                 document.getElementById('req-email').value = '';
