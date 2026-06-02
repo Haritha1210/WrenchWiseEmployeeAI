@@ -377,9 +377,12 @@ function renderCounselorsPanel(container) {
                         ${sc.active ? 'Active' : 'Disabled'}
                     </span>
                 </td>
-                <td>
-                    <button class="btn-icon-only ${sc.active ? 'danger' : 'success'}" data-index="${index}" title="${sc.active ? 'Disable Counselor' : 'Enable Counselor'}">
+                <td style="display:flex; gap:8px;">
+                    <button class="btn-icon-only btn-toggle ${sc.active ? 'danger' : 'success'}" data-index="${index}" title="${sc.active ? 'Disable Counselor' : 'Enable Counselor'}">
                         <i data-lucide="${sc.active ? 'user-x' : 'user-check'}"></i>
+                    </button>
+                    <button class="btn-icon-only btn-delete danger" data-index="${index}" title="Delete Counselor">
+                        <i data-lucide="trash-2"></i>
                     </button>
                 </td>
             </tr>
@@ -388,12 +391,24 @@ function renderCounselorsPanel(container) {
         if (window.lucide) window.lucide.createIcons();
 
         // Bind toggle action
-        tableBody.querySelectorAll('.btn-icon-only').forEach(btn => {
+        tableBody.querySelectorAll('.btn-toggle').forEach(btn => {
             btn.addEventListener('click', () => {
                 const idx = parseInt(btn.getAttribute('data-index'));
                 counselors[idx].active = !counselors[idx].active;
                 setStorageItem('wrenchwise_counselors', counselors);
                 showToast(`Counselor ${counselors[idx].name} ${counselors[idx].active ? 'enabled' : 'disabled'}!`, "success");
+                renderCounselorTable();
+            });
+        });
+
+        // Bind delete action
+        tableBody.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const idx = parseInt(btn.getAttribute('data-index'));
+                const name = counselors[idx].name;
+                counselors.splice(idx, 1);
+                setStorageItem('wrenchwise_counselors', counselors);
+                showToast(`Counselor ${name} has been completely deleted.`, "success");
                 renderCounselorTable();
             });
         });
