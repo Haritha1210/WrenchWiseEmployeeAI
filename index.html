@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrench Wise EmployAI - AI-Powered Employability & Transformation Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js for beautiful analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- PDF.js and Mammoth.js for client-side resume text extraction -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="css/styles.css?v=2.0.1">
+</head>
+<body class="light-mode-theme">
+    <!-- App Root Container -->
+    <div id="app" class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar" class="app-sidebar hidden">
+            <div class="sidebar-brand" style="justify-content: center; padding: 16px 0;">
+                <img src="assets/logo.png" alt="Wrench Wise EmployAI Logo" style="height: 48px; width: auto; object-fit: contain; max-width: 90%;">
+            </div>
+            <nav class="sidebar-menu">
+                <!-- Dynamic Menu Items will be inserted here -->
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="nav-user-avatar">SC</div>
+                    <div class="user-details">
+                        <span class="user-name" id="nav-user-name">Counselor Mode</span>
+                        <span class="user-role" id="nav-user-role">Sales Counselor</span>
+                    </div>
+                </div>
+                <button id="btn-logout" class="btn-logout" title="Log Out" style="display: none;">
+                    <i data-lucide="log-out"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Workspace Area -->
+        <main id="main-content" class="app-main">
+            <!-- Top bar -->
+            <header class="app-header hidden">
+                <div class="header-left" style="display: flex; align-items: center;">
+                    <button id="sidebar-toggle" class="sidebar-toggle-btn" style="display: none;">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <!-- Brand info with Logo left of name -->
+                    <div class="header-brand" style="display: flex; align-items: center; gap: 8px; margin-right: 20px;">
+                        <img src="assets/logo.png" alt="Wrench Wise EmployAI Logo" style="height: 40px; width: auto; object-fit: contain;">
+                    </div>
+                    <h1 id="page-title" class="page-title" style="font-size: 1.2rem; border-left: 1px solid var(--border-color); padding-left: 20px;">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <button id="btn-settings" class="btn-icon" title="Settings" style="background:none; border:none; color:var(--text-light); cursor:pointer; padding: 8px; margin-right: 8px; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md); transition: background-color 0.2s;">
+                        <i data-lucide="settings"></i>
+                    </button>
+                    <div class="role-badge" id="role-badge">Counselor</div>
+                    <div class="notification-bell">
+                        <i data-lucide="bell"></i>
+                        <span class="badge-dot"></span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dynamic Page Content -->
+            <div id="page-content" class="page-content">
+                <!-- Rendered views go here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Hidden Printable Report Wrapper -->
+    <div id="print-report" class="print-report-container">
+        <!-- Printable report details rendered dynamically on request -->
+    </div>
+
+    <!-- Hidden SVG Gradients for Score Gauges -->
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#00a896" />
+                <stop offset="100%" stop-color="#028090" />
+            </linearGradient>
+            <linearGradient id="futureGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981" />
+                <stop offset="100%" stop-color="#059669" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="modal-overlay hidden" style="display: none; align-items: center; justify-content: center; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div class="modal-content" style="background: var(--surface); border-radius: var(--radius-lg); padding: 24px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text-dark);">Settings</h2>
+                <button id="close-settings" class="btn-close" style="background: none; border: none; cursor: pointer; color: var(--text-light);"><i data-lucide="x"></i></button>
+            </div>
+            <div class="modal-body" style="margin-bottom: 24px;">
+                <div class="form-group" style="display: flex; flex-direction: column; gap: 8px;">
+                    <label class="form-label" for="gemini-api-key" style="font-size: 0.9rem; font-weight: 600; color: var(--text-dark);">Gemini API Key</label>
+                    <input type="password" id="gemini-api-key" class="form-input" placeholder="AIzaSy..." autocomplete="off" style="padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-family: monospace; width: 100%;">
+                    <span class="field-hint" style="font-size: 0.8rem; color: var(--text-light);">Required for LLM-powered parsing. Key is saved locally.</span>
+                </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end;">
+                <button id="save-settings" class="btn btn-primary" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); cursor: pointer; font-weight: 600;">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Application Script entry point -->
+    <script type="module" src="js/app.js?v=2.0.1"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "wrenchwise-employai",
+  "version": "1.0.0",
+  "description": "AI-Powered Employability Assessment & Career Transformation Platform",
+  "main": "index.html",
+  "type": "module",
+  "scripts": {
+    "start": "npx http-server -c-1 -p 3000"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
