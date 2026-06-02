@@ -13,7 +13,6 @@ import { getStorageItem, setStorageItem, showToast } from './utils.js?v=2.1';
 import { renderLoginView } from './views/auth.js?v=2.1';
 import { renderCounselorView } from './views/counselor.js?v=2.1';
 import { renderAdminView } from './views/admin.js?v=2.1';
-import { renderAnalyticsView } from './views/analytics.js?v=2.1';
 
 // Application State
 let currentUser = null;
@@ -70,14 +69,19 @@ function init() {
     let savedUser = getStorageItem('wrenchwise_session_user', null);
     let savedRole = getStorageItem('wrenchwise_session_role', null);
 
+    if (!savedUser || !savedRole) {
+        const counselors = getStorageItem('wrenchwise_counselors', INITIAL_COUNSELORS);
+        const defaultSC = counselors.find(c => c.active) || counselors[0];
+        savedUser = defaultSC;
+        savedRole = 'counselor';
+        setStorageItem('wrenchwise_session_user', savedUser);
+        setStorageItem('wrenchwise_session_role', savedRole);
+    }
+
     // Bind Core Shell UI Event Listeners
     bindShellEvents();
 
-    if (!savedUser || !savedRole) {
-        navigate('login');
-    } else {
-        loginSuccess(savedUser, savedRole);
-    }
+    loginSuccess(savedUser, savedRole);
 }
 
 /**
@@ -93,7 +97,7 @@ function bindShellEvents() {
     });
 
     // Logout Action
-    document.getElementById('btn-logout').addEventListener('click', () => {
+    document.getElementById('btn-auth-toggle').addEventListener('click', () => {
         logout();
     });
 
@@ -140,6 +144,19 @@ function loginSuccess(user, role) {
     setStorageItem('wrenchwise_session_user', user);
     setStorageItem('wrenchwise_session_role', role);
 
+    // Update top bar button text
+    const btnAuth = document.getElementById('btn-auth-toggle');
+    if (btnAuth) {
+        if (role === 'admin') {
+            btnAuth.innerHTML = '<i data-lucide="log-out" style="width: 18px; height: 18px;"></i><span>Logout</span>';
+            btnAuth.title = "Log Out";
+        } else {
+            btnAuth.innerHTML = '<i data-lucide="shield" style="width: 18px; height: 18px;"></i><span>Admin Login</span>';
+            btnAuth.title = "Admin Login";
+        }
+        if (window.lucide) window.lucide.createIcons();
+    }
+
     // Update Shell Layout elements
     document.getElementById('sidebar').classList.remove('hidden');
     document.querySelector('.app-header').classList.remove('hidden');
@@ -158,10 +175,10 @@ function loginSuccess(user, role) {
     renderHeaderMenu();
 
     // Route to default page
-    if (role === 'admin') {
-        navigate('analytics'); // Admin default screen
+    if (role === 'counselor') {
+        navigate('counselor');
     } else {
-        navigate('counselor'); // Counselor default screen
+        navigate('admin'); // Admin default screen
     }
 
     showToast(`Logged in successfully as ${user.name}!`, "success");
@@ -173,15 +190,24 @@ function loginSuccess(user, role) {
 function logout() {
     localStorage.removeItem('wrenchwise_session_user');
     localStorage.removeItem('wrenchwise_session_role');
-    currentUser = null;
-    currentRole = null;
     
-    // Hide shell elements
-    document.getElementById('sidebar').classList.add('hidden');
-    document.querySelector('.app-header').classList.add('hidden');
-    
-    navigate('login');
-    showToast("Logged out successfully.", "info");
+    if (currentRole === 'admin') {
+        // Logging out of Admin returns to Counselor view
+        currentUser = null;
+        currentRole = null;
+        init(); // Re-inits default counselor session
+        showToast("Logged out of Admin.", "info");
+    } else {
+        // Counselors clicking Admin Login go to login page
+        currentUser = null;
+        currentRole = null;
+        
+        // Hide shell elements
+        document.getElementById('sidebar').classList.add('hidden');
+        document.querySelector('.app-header').classList.add('hidden');
+        
+        navigate('login');
+    }
 }
 
 /**
@@ -211,9 +237,6 @@ function renderHeaderMenu() {
         `;
     } else if (currentRole === 'admin') {
         navContainer.innerHTML = `
-            <a class="header-nav-tab ${currentView === 'analytics' ? 'active' : ''}" data-view="analytics">
-                Analytics Dashboard
-            </a>
             <a class="header-nav-tab ${currentView === 'admin' ? 'active' : ''}" data-view="admin">
                 System Config
             </a>
@@ -251,11 +274,8 @@ function navigate(viewName) {
         titleArea.textContent = '';
         renderCounselorView(contentArea, currentUser);
     } else if (viewName === 'admin') {
-        titleArea.textContent = 'System Administration Config';
+        titleArea.textContent = 'System Configuration';
         renderAdminView(contentArea);
-    } else if (viewName === 'analytics') {
-        titleArea.textContent = 'Employability Analytics Dashboard';
-        renderAnalyticsView(contentArea);
     }
 
     // Update active nav links in header

@@ -31,9 +31,9 @@ export function renderAdminView(container) {
                     <i data-lucide="users"></i>
                     <span>Manage Counselors</span>
                 </button>
-                <button class="admin-menu-item" data-sub="requests">
+                <button class="admin-menu-item" data-sub="add-counselor">
                     <i data-lucide="user-plus"></i>
-                    <span>Access Requests</span>
+                    <span>Give Access</span>
                 </button>
                 <button class="admin-menu-item" data-sub="settings">
                     <i data-lucide="settings"></i>
@@ -83,8 +83,8 @@ function renderActiveSubSection() {
         renderProgramsPanel(panel);
     } else if (activeSubSection === 'counselors') {
         renderCounselorsPanel(panel);
-    } else if (activeSubSection === 'requests') {
-        renderAccessRequestsPanel(panel);
+    } else if (activeSubSection === 'add-counselor') {
+        renderAddCounselorPanel(panel);
     } else if (activeSubSection === 'settings') {
         renderSettingsPanel(panel);
     }
@@ -488,101 +488,62 @@ function renderSettingsPanel(container) {
 }
 
 /**
- * 6. ACCESS REQUESTS PANEL
+ * 6. ADD COUNSELOR PANEL (GIVE ACCESS)
  */
-function renderAccessRequestsPanel(container) {
-    let requests = getStorageItem('wrenchwise_access_requests', []);
-    
-    const renderTable = () => {
-        const tbody = document.getElementById('requests-table-body');
-        if (!tbody) return;
+function renderAddCounselorPanel(container) {
+    container.innerHTML = `
+        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Give Access</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Provide access permission by adding a new Sales Counselor directly.</p>
+        
+        <form id="add-counselor-form" onsubmit="return false;" class="glass-card" style="padding:24px;">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" for="new-sc-name">Counselor Full Name</label>
+                <input type="text" id="new-sc-name" class="form-input" placeholder="e.g., John Doe" required style="width:100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label" for="new-sc-email">Email Address</label>
+                <input type="email" id="new-sc-email" class="form-input" placeholder="john.doe@wrenchwise.com" required style="width:100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-full" style="padding:12px;">
+                <i data-lucide="user-plus"></i> Grant Access Permission
+            </button>
+        </form>
+    `;
 
-        if (requests.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">No pending access requests.</td></tr>';
+    if (window.lucide) window.lucide.createIcons();
+
+    document.getElementById('add-counselor-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('new-sc-name').value.trim();
+        const email = document.getElementById('new-sc-email').value.trim();
+        
+        if (!name || !email) return;
+
+        let counselors = getStorageItem('wrenchwise_counselors', []);
+        
+        // Ensure email is unique
+        if (counselors.find(c => c.email.toLowerCase() === email.toLowerCase())) {
+            showToast("A counselor with this email already exists.", "error");
             return;
         }
 
-        tbody.innerHTML = requests.map(req => `
-            <tr>
-                <td style="color:var(--text-main); font-weight:600;">${req.name}</td>
-                <td style="color:var(--text-muted);">${req.email}</td>
-                <td style="color:var(--text-muted); font-size:0.85rem;">${new Date(req.date).toLocaleDateString()}</td>
-                <td>
-                    <button class="btn-icon-only success btn-approve-req" data-id="${req.id}" title="Approve Request">
-                        <i data-lucide="check-circle"></i>
-                    </button>
-                    <button class="btn-icon-only danger btn-reject-req" data-id="${req.id}" title="Reject Request" style="margin-left:8px;">
-                        <i data-lucide="x-circle"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
-
-        if (window.lucide) window.lucide.createIcons();
-
-        // Attach Approval Logic
-        tbody.querySelectorAll('.btn-approve-req').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const reqId = btn.getAttribute('data-id');
-                const reqIdx = requests.findIndex(r => r.id === reqId);
-                const request = requests[reqIdx];
-
-                // Add to counselors
-                let counselors = getStorageItem('wrenchwise_counselors', []);
-                counselors.push({
-                    id: "sc_" + Date.now(),
-                    name: request.name,
-                    email: request.email,
-                    active: true,
-                    assessmentsCount: 0,
-                    enrollmentsCount: 0
-                });
-                setStorageItem('wrenchwise_counselors', counselors);
-
-                // Remove request
-                requests.splice(reqIdx, 1);
-                setStorageItem('wrenchwise_access_requests', requests);
-                
-                showToast(request.name + " has been approved as a Sales Counselor.", "success");
-                renderTable();
-            });
+        const newId = "sc_" + Date.now();
+        counselors.push({
+            id: newId,
+            name: name,
+            email: email,
+            active: true,
+            assessmentsCount: 0,
+            enrollmentsCount: 0
         });
 
-        // Attach Rejection Logic
-        tbody.querySelectorAll('.btn-reject-req').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const reqId = btn.getAttribute('data-id');
-                const reqIdx = requests.findIndex(r => r.id === reqId);
-                
-                requests.splice(reqIdx, 1);
-                setStorageItem('wrenchwise_access_requests', requests);
-                
-                showToast("Request rejected and removed.", "info");
-                renderTable();
-            });
-        });
-    };
-
-    container.innerHTML = `
-        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="user-plus" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Access Requests</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Review and approve access requests for new Sales Counselors.</p>
+        setStorageItem('wrenchwise_counselors', counselors);
         
-        <div class="glass-card" style="padding:0; border:none; box-shadow:none; overflow-x:auto;">
-            <table class="config-table">
-                <thead>
-                    <tr>
-                        <th>Requested Name</th>
-                        <th>Email Address</th>
-                        <th>Date Requested</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="requests-table-body">
-                    <!-- Rendered dynamically -->
-                </tbody>
-            </table>
-        </div>
-    `;
-
-    renderTable();
+        document.getElementById('new-sc-name').value = '';
+        document.getElementById('new-sc-email').value = '';
+        
+        showToast(\`Access granted! \${name} has been added successfully.\`, "success");
+    });
 }
