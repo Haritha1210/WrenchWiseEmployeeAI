@@ -401,7 +401,7 @@ function renderCounselorsPanel(container) {
 
     container.innerHTML = `
         <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="users" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Sales Counselors Directory</h3>
-        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Manage Sales Counselor access credentials and active demo permissions.</p>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Manage Sales Counselor access credentials and active permissions.</p>
         
         <div style="display:grid; grid-template-columns: 1fr; gap:24px;">
             <!-- Counselor List Table -->
