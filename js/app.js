@@ -8,11 +8,11 @@ import {
     DEFAULT_SCORING_WEIGHTS, 
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
-} from './data.js?v=2.1';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=2.1';
-import { renderLoginView } from './views/auth.js?v=2.1';
-import { renderCounselorView } from './views/counselor.js?v=2.1';
-import { renderAdminView } from './views/admin.js?v=2.1';
+} from './data.js?v=3.1';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.1';
+import { renderLoginView } from './views/auth.js?v=3.1';
+import { renderCounselorView } from './views/counselor.js?v=3.1';
+import { renderAdminView } from './views/admin.js?v=3.1';
 
 // Application State
 let currentUser = null;
