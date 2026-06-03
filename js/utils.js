@@ -355,3 +355,101 @@ export function generatePrintReport(data, program, leadStatus) {
         window.print();
     }, 150);
 }
+
+/**
+ * Resolves the Gemini API key from the backend proxy, localStorage, or by prompting the user.
+ * @returns {Promise<string>} Resolves with the API Key
+ */
+export async function getGeminiApiKey() {
+    // 1. Try to fetch from backend
+    try {
+        const res = await fetch('/api/get-gemini-key');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.key && data.key.trim() && !data.key.includes('YOUR_FALLBACK_KEY') && !data.key.includes('AIzaSy_YOUR_FALLBACK')) {
+                return data.key.trim();
+            }
+        }
+    } catch (e) {
+        console.warn("Could not fetch API key from backend");
+    }
+
+    // 2. Try to get from localStorage
+    const storedKey = getStorageItem('wrenchwise_gemini_api_key', null);
+    if (storedKey && storedKey.trim()) {
+        return storedKey.trim();
+    }
+
+    // 3. Prompt user with a premium custom modal
+    return new Promise((resolve, reject) => {
+        // Remove existing modal if any
+        const existing = document.getElementById('gemini-key-modal');
+        if (existing) existing.remove();
+
+        const modal = document.createElement('div');
+        modal.id = 'gemini-key-modal';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.background = 'rgba(15, 23, 42, 0.7)';
+        modal.style.backdropFilter = 'blur(10px)';
+        modal.style.zIndex = '99999';
+        modal.style.display = 'flex';
+        modal.style.alignItems = 'center';
+        modal.style.justifyContent = 'center';
+        modal.style.padding = '20px';
+
+        modal.innerHTML = `
+            <div class="glass-card" style="width: 100%; max-width: 440px; padding: 32px; border-radius: 16px; box-shadow: var(--shadow-xl); background: var(--card-bg); border: 1px solid var(--border-color); position: relative; text-align: center; color: var(--text-main); font-family: var(--font-main);">
+                <div style="position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-top-left-radius: 16px; border-top-right-radius: 16px;"></div>
+                <div style="width: 56px; height: 56px; background: rgba(0, 168, 150, 0.1); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: inset 0 0 0 1px rgba(0,168,150,0.15);">
+                    <i data-lucide="key" style="width: 26px; height: 26px;"></i>
+                </div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 8px; font-family: var(--font-heading); color: var(--text-main);">Gemini API Key Required</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 24px;">
+                    An API key is required to utilize brochure syllabus extraction and resume assessments.
+                    Your key is stored securely in your browser's local storage and is never sent to our servers.
+                </p>
+                <div class="form-group" style="text-align: left; margin-bottom: 24px;">
+                    <label class="form-label" style="font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: block; font-size: 0.85rem;">Gemini API Key</label>
+                    <input type="password" id="modal-gemini-key" class="form-input" placeholder="AIzaSy..." style="padding: 12px 16px; width: 100%; border-radius: 8px; background: var(--bg-light); border: 1px solid var(--border-color); color: var(--text-main); font-family: monospace;">
+                    <div style="margin-top: 10px; text-align: right;">
+                        <a href="https://aistudio.google.com/" target="_blank" style="color: var(--primary); font-size: 0.8rem; text-decoration: none; font-weight: 600; transition: opacity 0.2s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                            Get a free key from Google AI Studio ↗
+                        </a>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="btn-modal-cancel" style="padding: 10px 20px; border-radius: 8px; font-weight: 500;">Cancel</button>
+                    <button class="btn btn-primary" id="btn-modal-submit" style="padding: 10px 20px; border-radius: 8px; font-weight: 500; background: var(--primary-gradient); border: none; color: white;">Save & Proceed</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        if (window.lucide) window.lucide.createIcons();
+
+        const inputEl = document.getElementById('modal-gemini-key');
+        const btnCancel = document.getElementById('btn-modal-cancel');
+        const btnSubmit = document.getElementById('btn-modal-submit');
+
+        btnCancel.addEventListener('click', () => {
+            modal.remove();
+            reject(new Error("Gemini API Key was not provided."));
+        });
+
+        btnSubmit.addEventListener('click', () => {
+            const val = inputEl.value.trim();
+            if (!val) {
+                showToast("Please enter an API Key.", "warning");
+                return;
+            }
+            if (!val.startsWith('AIzaSy')) {
+                showToast("Key must be a valid Google API key (starts with AIzaSy).", "warning");
+                return;
+            }
+            setStorageItem('wrenchwise_gemini_api_key', val);
+            modal.remove();
+            resolve(val);
+        });
+    });
+}

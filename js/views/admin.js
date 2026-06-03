@@ -2,10 +2,11 @@
    Wrench Wise EmployAI Admin View
    ========================================================================== */
 
-import { getStorageItem, setStorageItem, showToast } from '../utils.js';
+import { getStorageItem, setStorageItem, showToast, getGeminiApiKey } from '../utils.js';
 import { extractProgramFromBrochure } from '../api/gemini.js';
 
 let activeSubSection = 'weights'; // active panel: weights, benchmarks, programs, counselors
+let activeProgIdx = 0; // active program tab index inside programs management
 
 /**
  * Main entry to render the Admin Dashboard Configurator
@@ -249,7 +250,6 @@ function renderBenchmarksPanel(container) {
  */
 function renderProgramsPanel(container) {
     const programs = getStorageItem('wrenchwise_programs', []);
-    let activeProgIdx = 0; // aiml default active tab
 
     const renderActiveProgramForm = () => {
         const prog = programs[activeProgIdx];
@@ -526,11 +526,7 @@ async function handleBrochureUpload(file) {
     }, 45);
 
     try {
-        const keyResponse = await fetch('/api/get-gemini-key');
-        if (!keyResponse.ok) throw new Error("Could not retrieve Gemini API key from proxy.");
-        const keyData = await keyResponse.json();
-        const apiKey = keyData.key;
-        if (!apiKey) throw new Error("Gemini API key is not configured in Vercel/Render environments.");
+        const apiKey = await getGeminiApiKey();
 
         const fileExtension = file.name.split('.').pop().toLowerCase();
         let filePayload = null;

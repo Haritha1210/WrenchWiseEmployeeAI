@@ -4,6 +4,7 @@
 
 import { SAMPLE_RESUMES } from '../data.js';
 import { extractProfileWithGemini } from '../api/gemini.js';
+import { getGeminiApiKey } from '../utils.js';
 
 const SKILL_DICTIONARY = [
     "Python", "JavaScript", "TypeScript", "Java", "C++", "C", "C#", "Go", "Rust", "Swift", "Kotlin", "R",
@@ -54,24 +55,11 @@ function sanitizeParsedProfile(parsed, fileName) {
 
 export function parseResumeFile(file) {
     return new Promise(async (resolve, reject) => {
-        async function fetchGeminiKey() {
-            try {
-                const res = await fetch('/api/get-gemini-key');
-                if (res.ok) {
-                    const data = await res.json();
-                    return data.key;
-                }
-            } catch (e) {
-                console.warn("Could not fetch API key from backend");
-            }
-            return null;
-        }
-
-        let geminiApiKey = await fetchGeminiKey();
-        
-        // Fallback placeholder check (ensure the user replaces this via environment variables)
-        if (!geminiApiKey) {
-            geminiApiKey = 'AIzaSy_YOUR_FALLBACK_KEY_IF_NEEDED'; 
+        let geminiApiKey = null;
+        try {
+            geminiApiKey = await getGeminiApiKey();
+        } catch (e) {
+            console.warn("Gemini API key retrieval cancelled or failed:", e.message);
         }
 
         const fileExtension = file.name.split('.').pop().toLowerCase();
@@ -318,17 +306,9 @@ async function parseRawText(text, fileName) {
     // --- LLM Full-Profile Parsing Overhaul (Text Fallback for DOCX/TXT) ---
     let geminiApiKey = null;
     try {
-        const res = await fetch('/api/get-gemini-key');
-        if (res.ok) {
-            const data = await res.json();
-            geminiApiKey = data.key;
-        }
+        geminiApiKey = await getGeminiApiKey();
     } catch (e) {
-        console.warn("Could not fetch API key from backend");
-    }
-    
-    if (!geminiApiKey) {
-        geminiApiKey = 'AIzaSy_YOUR_FALLBACK_KEY_IF_NEEDED'; 
+        console.warn("Gemini API key retrieval cancelled or failed:", e.message);
     }
 
     if (geminiApiKey) {
