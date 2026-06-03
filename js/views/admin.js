@@ -314,19 +314,22 @@ function renderProgramsPanel(container) {
         if (btnToggle) {
             btnToggle.addEventListener('click', () => {
                 const action = prog.disabled ? 'enable' : 'disable';
-                if (!window.confirm(`Are you sure you want to ${action} this program?`)) {
-                    return;
+                const modal = document.getElementById('confirm-toggle-modal');
+                const msg = document.getElementById('confirm-toggle-msg');
+                const yesBtn = document.getElementById('btn-toggle-yes');
+                if (modal && msg && yesBtn) {
+                    msg.textContent = `Are you sure you want to ${action} ${prog.name}?`;
+                    if (action === 'disable') {
+                        yesBtn.style.background = 'var(--danger)';
+                        yesBtn.style.borderColor = 'var(--danger)';
+                        yesBtn.textContent = 'Yes, Disable';
+                    } else {
+                        yesBtn.style.background = 'var(--success)';
+                        yesBtn.style.borderColor = 'var(--success)';
+                        yesBtn.textContent = 'Yes, Enable';
+                    }
+                    modal.style.display = 'flex';
                 }
-                
-                if (!prog.disabled && programs.filter(p => !p.disabled).length <= 1) {
-                    showToast("Cannot disable the last active program.", "warning");
-                    return;
-                }
-                prog.disabled = !prog.disabled;
-                programs[activeProgIdx] = prog;
-                setStorageItem('wrenchwise_programs', programs);
-                renderProgramsPanel(container);
-                showToast(`Program has been ${prog.disabled ? 'disabled' : 'enabled'}.`, "success");
             });
         }
     };
@@ -377,6 +380,18 @@ function renderProgramsPanel(container) {
                 <div style="display:flex; justify-content:center; gap:16px;">
                     <button class="btn btn-secondary" id="btn-confirm-no" style="padding:8px 24px;">NO</button>
                     <button class="btn btn-primary" id="btn-confirm-yes" style="padding:8px 24px; background:var(--danger); border-color:var(--danger);">YES</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Custom Toggle Modal -->
+        <div id="confirm-toggle-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+            <div style="background:var(--bg-surface-solid); padding:24px; border-radius:12px; max-width:400px; width:90%; box-shadow:var(--shadow-xl); text-align:center;">
+                <h3 style="color:var(--text-main); margin-bottom:16px;">Confirm Status Change</h3>
+                <p id="confirm-toggle-msg" style="color:var(--text-muted); margin-bottom:24px;">Are you sure you want to toggle this program?</p>
+                <div style="display:flex; justify-content:center; gap:16px;">
+                    <button class="btn btn-secondary" id="btn-toggle-no" style="padding:8px 24px;">NO</button>
+                    <button class="btn btn-primary" id="btn-toggle-yes" style="padding:8px 24px;">YES</button>
                 </div>
             </div>
         </div>
@@ -479,6 +494,27 @@ function renderProgramsPanel(container) {
                 showToast("Program removed successfully.", "success");
             }
             modal.style.display = 'none';
+        });
+    }
+    
+    const toggleModal = document.getElementById('confirm-toggle-modal');
+    if (toggleModal) {
+        document.getElementById('btn-toggle-no').addEventListener('click', () => {
+            toggleModal.style.display = 'none';
+        });
+        
+        document.getElementById('btn-toggle-yes').addEventListener('click', () => {
+            toggleModal.style.display = 'none';
+            const prog = programs[activeProgIdx];
+            if (!prog.disabled && programs.filter(p => !p.disabled).length <= 1) {
+                showToast("Cannot disable the last active program.", "warning");
+                return;
+            }
+            prog.disabled = !prog.disabled;
+            programs[activeProgIdx] = prog;
+            setStorageItem('wrenchwise_programs', programs);
+            renderProgramsPanel(container);
+            showToast(`Program has been ${prog.disabled ? 'disabled' : 'enabled'}.`, "success");
         });
     }
 
