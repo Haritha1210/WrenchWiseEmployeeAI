@@ -745,7 +745,17 @@ function generateFallbackProfile(fileName) {
 
 let globalTesseractWorker = null;
 
-async function resizeImageForOCR(file, maxWidth = 1200) {
+// Trigger preload gracefully in background to make parsing instantaneous later
+setTimeout(async () => {
+    if (window.Tesseract && !globalTesseractWorker) {
+        try {
+            globalTesseractWorker = await window.Tesseract.createWorker('eng', 1, { logger: () => {} });
+            await globalTesseractWorker.setParameters({ tessedit_pageseg_mode: "11" });
+        } catch(e) {}
+    }
+}, 2000);
+
+async function resizeImageForOCR(file, maxWidth = 1600) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -779,12 +789,13 @@ export async function extractTextFromImage(file) {
         throw new Error("Tesseract.js OCR library failed to load. Please refresh.");
     }
     
-    const resizedDataUrl = await resizeImageForOCR(file, 1200);
+    const resizedDataUrl = await resizeImageForOCR(file, 1600);
     
     if (!globalTesseractWorker) {
         globalTesseractWorker = await window.Tesseract.createWorker('eng', 1, {
             logger: () => {} 
         });
+        await globalTesseractWorker.setParameters({ tessedit_pageseg_mode: "11" });
     }
     
     const ret = await globalTesseractWorker.recognize(resizedDataUrl);
