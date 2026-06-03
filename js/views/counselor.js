@@ -44,12 +44,12 @@ function renderUploadStep(uploadContainer) {
             
             <div class="upload-grid">
                 <div class="dropzone-container" id="dropzone">
-                    <input type="file" id="resume-file" class="file-input-hidden" accept=".pdf,.docx,.txt">
+                    <input type="file" id="resume-file" class="file-input-hidden" accept=".pdf,.docx,.txt,.png,.jpg,.jpeg">
                     <div class="dropzone-icon">
                         <i data-lucide="upload-cloud"></i>
                     </div>
                     <div class="dropzone-text">Drag and drop candidate resume here</div>
-                    <div class="dropzone-subtext">Supports PDF, DOCX, or TXT (Max size 10MB)</div>
+                    <div class="dropzone-subtext">Supports PDF, DOCX, TXT, PNG, or JPG (Max size 10MB)</div>
                     <button class="btn btn-secondary">Select File</button>
                 </div>
             </div>

@@ -162,6 +162,15 @@ export function parseResumeFile(file) {
                     }
                 };
                 reader.readAsArrayBuffer(file);
+            } else if (fileExtension === 'png' || fileExtension === 'jpg' || fileExtension === 'jpeg') {
+                extractTextFromImage(file)
+                    .then(async (text) => {
+                        if (!text || text.trim() === '') throw new Error("The uploaded image seems to be empty or unreadable.");
+                        const candidate = await parseRawText(text, file.name);
+                        candidate.rawText = text;
+                        resolve(candidate);
+                    })
+                    .catch(err => fallbackParse(file, resolve, reject, err));
             } else {
                 const reader = new FileReader();
                 reader.onload = async (event) => {
@@ -733,3 +742,14 @@ function generateFallbackProfile(fileName) {
         projects: [], experience: [], certifications: []
     };
 }
+
+export async function extractTextFromImage(file) {
+    if (!window.Tesseract) {
+        throw new Error("Tesseract.js OCR library failed to load. Please refresh.");
+    }
+    const worker = await window.Tesseract.createWorker('eng');
+    const ret = await worker.recognize(file);
+    await worker.terminate();
+    return cleanExtractedText(ret.data.text);
+}
+
