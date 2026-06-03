@@ -260,25 +260,25 @@ function renderProgramsPanel(container) {
         progContainer.innerHTML = `
             <div style="margin-top:20px; display:flex; flex-direction:column; gap:20px;">
                 <div class="form-group">
-                    <label class="form-label">Program Name</label>
+                    <label class="form-label">Program Name <span style="color:var(--danger)">*</span></label>
                     <input type="text" id="prog-name" class="form-input" value="${prog.name}" style="padding-left:16px;">
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label class="form-label">Skills Curriculum</label>
+                        <label class="form-label">Skills Curriculum <span style="color:var(--danger)">*</span></label>
                         <textarea id="prog-skills" class="form-input" rows="4" style="padding:12px; font-family:monospace; line-height:1.5;">${prog.skills.join(', ')}</textarea>
                         <span style="font-size:0.75rem; color:var(--text-muted);">Separate skills with commas</span>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Pre-defined Projects</label>
+                        <label class="form-label">Pre-defined Projects <span style="color:var(--danger)">*</span></label>
                         <textarea id="prog-projects" class="form-input" rows="4" style="padding:12px; font-family:monospace; line-height:1.5;">${prog.projects.join(', ')}</textarea>
                         <span style="font-size:0.75rem; color:var(--text-muted);">Separate projects with commas</span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Verified Certifications Gained</label>
+                    <label class="form-label">Verified Certifications Gained <span style="color:var(--danger)">*</span></label>
                     <textarea id="prog-certs" class="form-input" rows="2" style="padding:12px; font-family:monospace; line-height:1.5;">${prog.certifications.join(', ')}</textarea>
                     <span style="font-size:0.75rem; color:var(--text-muted);">Separate certifications with commas</span>
                 </div>
