@@ -728,7 +728,7 @@ function renderCounselorsPanel(container) {
                 if (!wasActive && c.active && c.email) {
                     const subject = encodeURIComponent("Wrench Wise EmployAI - Account Access Approved");
                     const body = encodeURIComponent(`Hi ${c.name},\n\nAccess has been permitted. Now you can login with your credentials.\n\nEmail: ${c.email}\nPassword: ${c.password || '[Password you created]'}\n\nBest regards,\nAdmin Team`);
-                    window.open(`mailto:${c.email}?subject=${subject}&body=${body}`, '_blank');
+                    window.location.href = `mailto:${c.email}?subject=${subject}&body=${body}`;
                 }
                 
                 renderCounselorTable();
