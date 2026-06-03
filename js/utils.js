@@ -428,9 +428,18 @@ export async function getGeminiApiKey() {
         document.body.appendChild(modal);
         if (window.lucide) window.lucide.createIcons();
 
-        const inputEl = document.getElementById('modal-gemini-key');
-        const btnCancel = document.getElementById('btn-modal-cancel');
-        const btnSubmit = document.getElementById('btn-modal-submit');
+        const inputEl = modal.querySelector('#modal-gemini-key');
+        const btnCancel = modal.querySelector('#btn-modal-cancel');
+        const btnSubmit = modal.querySelector('#btn-modal-submit');
+
+        inputEl.focus();
+
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                btnSubmit.click();
+            }
+        });
 
         btnCancel.addEventListener('click', () => {
             modal.remove();
@@ -443,8 +452,8 @@ export async function getGeminiApiKey() {
                 showToast("Please enter an API Key.", "warning");
                 return;
             }
-            if (!val.startsWith('AIzaSy')) {
-                showToast("Key must be a valid Google API key (starts with AIzaSy).", "warning");
+            if (val.length < 15) {
+                showToast("Please enter a valid Gemini API Key.", "warning");
                 return;
             }
             setStorageItem('wrenchwise_gemini_api_key', val);

@@ -14,7 +14,8 @@ app.use(express.static(__dirname));
 
 // API Route to securely fetch Gemini Key from environment variable
 app.get('/api/get-gemini-key', (req, res) => {
-    res.json({ key: process.env.GEMINI_API_KEY });
+    const key = process.env.GEMINI_API_KEY || process.env.GEMINI_KEY || process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_SECRET;
+    res.json({ key: key || null });
 });
 
 // For SPA routing: send all unmatched requests to index.html
