@@ -1,6 +1,6 @@
 export async function extractProfileWithGemini(filePayload, apiKey) {
     if (!apiKey) {
-        throw new Error("Gemini API Key is missing.");
+        throw new Error("Gemini API Key is not configured in your Vercel/Render project settings.");
     }
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
@@ -229,7 +229,7 @@ Tasks:
 
 export async function extractProgramFromBrochure(filePayload, apiKey) {
     if (!apiKey) {
-        throw new Error("Gemini API Key is missing.");
+        throw new Error("Gemini API Key is not configured in your Vercel/Render project settings.");
     }
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;

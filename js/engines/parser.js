@@ -57,7 +57,7 @@ export function parseResumeFile(file) {
     return new Promise(async (resolve, reject) => {
         let geminiApiKey = null;
         try {
-            geminiApiKey = await getGeminiApiKey(false);
+            geminiApiKey = await getGeminiApiKey();
         } catch (e) {
             console.warn("Gemini API key retrieval cancelled or failed:", e.message);
         }
@@ -306,7 +306,7 @@ async function parseRawText(text, fileName) {
     // --- LLM Full-Profile Parsing Overhaul (Text Fallback for DOCX/TXT) ---
     let geminiApiKey = null;
     try {
-        geminiApiKey = await getGeminiApiKey(false);
+        geminiApiKey = await getGeminiApiKey();
     } catch (e) {
         console.warn("Gemini API key retrieval cancelled or failed:", e.message);
     }
