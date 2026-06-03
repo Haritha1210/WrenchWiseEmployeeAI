@@ -3,7 +3,7 @@ export async function extractProfileWithGemini(filePayload, apiKey) {
         throw new Error("Gemini API Key is missing.");
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const promptExtraction = `You are an enterprise-grade AI Resume Parsing Engine.
 
@@ -232,7 +232,7 @@ export async function extractProgramFromBrochure(filePayload, apiKey) {
         throw new Error("Gemini API Key is missing.");
     }
 
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const promptExtraction = `You are an expert AI Education Curriculum & Syllabus Extraction Engine.
 
