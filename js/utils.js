@@ -358,9 +358,10 @@ export function generatePrintReport(data, program, leadStatus) {
 
 /**
  * Resolves the Gemini API key from the backend proxy, localStorage, or by prompting the user.
- * @returns {Promise<string>} Resolves with the API Key
+ * @param {boolean} forcePrompt - If true, displays the input modal when no key is found
+ * @returns {Promise<string|null>} Resolves with the API Key or null
  */
-export async function getGeminiApiKey() {
+export async function getGeminiApiKey(forcePrompt = true) {
     // 1. Try to fetch from backend
     try {
         const res = await fetch('/api/get-gemini-key');
@@ -378,6 +379,11 @@ export async function getGeminiApiKey() {
     const storedKey = getStorageItem('wrenchwise_gemini_api_key', null);
     if (storedKey && storedKey.trim()) {
         return storedKey.trim();
+    }
+
+    // If prompting is disabled, return null immediately
+    if (!forcePrompt) {
+        return null;
     }
 
     // 3. Prompt user with a premium custom modal

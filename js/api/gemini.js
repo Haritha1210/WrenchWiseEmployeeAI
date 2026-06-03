@@ -260,7 +260,15 @@ Do NOT hallucinate. Return only valid information from the brochure.`;
             },
             projects: {
                 type: "ARRAY",
-                items: { type: "STRING" }
+                items: {
+                    type: "OBJECT",
+                    properties: {
+                        title: { type: "STRING" },
+                        desc: { type: "STRING" },
+                        tech: { type: "STRING" }
+                    },
+                    required: ["title", "desc", "tech"]
+                }
             },
             certifications: {
                 type: "ARRAY",
@@ -284,22 +292,12 @@ Do NOT hallucinate. Return only valid information from the brochure.`;
                             type: "ARRAY",
                             items: { type: "STRING" }
                         }
-                    }
-                }
-            },
-            projectDetails: {
-                type: "OBJECT",
-                description: "An object mapping each project title to its description and tech details",
-                additionalProperties: {
-                    type: "OBJECT",
-                    properties: {
-                        desc: { type: "STRING" },
-                        tech: { type: "STRING" }
-                    }
+                    },
+                    required: ["title", "requiredSkills"]
                 }
             }
         },
-        required: ["name", "skills", "projects", "certifications", "learningOutcomes", "essentialTools", "roles", "projectDetails"]
+        required: ["name", "skills", "projects", "certifications", "learningOutcomes", "essentialTools", "roles"]
     };
 
     let documentPart = {};
@@ -345,7 +343,42 @@ Do NOT hallucinate. Return only valid information from the brochure.`;
 
         const data = await response.json();
         const jsonText = data.candidates[0].content.parts[0].text;
-        return JSON.parse(jsonText);
+        
+        let parsed = null;
+        try {
+            parsed = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.error("Failed to parse raw brochure JSON:", jsonText);
+            // Fallback attempt to strip markdown code blocks
+            const jsonRegex = /```json\s*([\s\S]*?)\s*```/i;
+            const match = jsonText.match(jsonRegex);
+            if (match && match[1]) {
+                parsed = JSON.parse(match[1].trim());
+            } else {
+                throw parseError;
+            }
+        }
+
+        // Restructure the projects from array of objects to projects array and projectDetails map
+        const projectsList = [];
+        const projectDetailsDict = {};
+        
+        if (parsed && Array.isArray(parsed.projects)) {
+            parsed.projects.forEach(p => {
+                if (p && p.title) {
+                    projectsList.push(p.title);
+                    projectDetailsDict[p.title] = {
+                        desc: p.desc || "",
+                        tech: p.tech || ""
+                    };
+                }
+            });
+        }
+        
+        parsed.projects = projectsList;
+        parsed.projectDetails = projectDetailsDict;
+        return parsed;
+
     } catch (error) {
         console.error("Error extracting program from brochure:", error);
         throw error;
