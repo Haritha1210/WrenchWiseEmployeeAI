@@ -298,10 +298,20 @@ function renderProgramsPanel(container) {
 
         // Save Action
         document.getElementById('btn-save-program').addEventListener('click', () => {
-            prog.name = document.getElementById('prog-name').value;
-            prog.skills = document.getElementById('prog-skills').value.split(',').map(s=>s.trim()).filter(Boolean);
-            prog.projects = document.getElementById('prog-projects').value.split(',').map(s=>s.trim()).filter(Boolean);
-            prog.certifications = document.getElementById('prog-certs').value.split(',').map(s=>s.trim()).filter(Boolean);
+            const name = document.getElementById('prog-name').value.trim();
+            const skills = document.getElementById('prog-skills').value.split(',').map(s=>s.trim()).filter(Boolean);
+            const projects = document.getElementById('prog-projects').value.split(',').map(s=>s.trim()).filter(Boolean);
+            const certifications = document.getElementById('prog-certs').value.split(',').map(s=>s.trim()).filter(Boolean);
+            
+            if (!name || skills.length === 0 || projects.length === 0 || certifications.length === 0) {
+                showToast("All fields (Name, Skills, Projects, Certifications) must be completely filled to save the program.", "error");
+                return;
+            }
+
+            prog.name = name;
+            prog.skills = skills;
+            prog.projects = projects;
+            prog.certifications = certifications;
 
             programs[activeProgIdx] = prog;
             setStorageItem('wrenchwise_programs', programs);

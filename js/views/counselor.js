@@ -352,7 +352,10 @@ function renderSnapshotStep(container) {
 
     // Program selection bindings
     const allPrograms = getStorageItem('wrenchwise_programs', []);
-    const programs = allPrograms.filter(p => !p.disabled); // Hide disabled programs
+    // Hide disabled or incomplete programs (missing skills, projects, or certs) to prevent hallucinations
+    const programs = allPrograms.filter(p => {
+        return !p.disabled && p.name && (p.skills || []).length > 0 && (p.projects || []).length > 0 && (p.certifications || []).length > 0;
+    });
     
     if (programs.length > 0 && (!selectedProgramId || !programs.some(p => p.id === selectedProgramId))) {
         selectedProgramId = programs[0].id;
