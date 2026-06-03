@@ -5,7 +5,7 @@ Wrench Wise EmployAI is an advanced, AI-powered employability assessment and car
 ## ✨ Key Features
 
 - **🔒 Secure Role-Based Access**
-  - **Admin Portal**: A secure system configuration panel (`admin@wrenchwise.com`) to manage scoring weights, industry benchmarks, curriculum programs, and counselor accounts.
+  - **Admin Portal**: A secure system configuration panel (`computerscience@wrench-wise.com`) to manage scoring weights, industry benchmarks, curriculum programs, and counselor accounts.
   - **Counselor Portal**: An elegant dashboard for counselors to process leads, assess resumes, and track candidate growth.
 
 - **🧠 AI-Powered Resume Parsing**
@@ -52,6 +52,11 @@ Wrench Wise EmployAI is an advanced, AI-powered employability assessment and car
    ```
    Open `http://localhost:3000` in your browser.
 
+## 🔑 Default Credentials
+
+- **Admin Login:**
+  - **Email**: `computerscience@wrench-wise.com`
+  - **Password**: `CseWW@2026`
 *(Counselors must request access via the portal, which admins can then approve from the System Configuration dashboard).*
 
 ## ☁️ Deployment

@@ -135,7 +135,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 const email = document.getElementById('login-email').value.trim();
                 const password = document.getElementById('login-password').value.trim();
 
-                if (email === 'admin@wrenchwise.com' && password === 'WWAdmin@123') {
+                if (email === 'computerscience@wrench-wise.com' && password === 'CseWW@2026') {
                     onLoginSuccess({ id: 'admin_00', name: 'Administrator', email: email, role: 'admin' }, 'admin');
                 } else {
                     const counselors = getStorageItem('wrenchwise_counselors', []);
