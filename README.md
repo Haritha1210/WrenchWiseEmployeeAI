@@ -52,12 +52,6 @@ Wrench Wise EmployAI is an advanced, AI-powered employability assessment and car
    ```
    Open `http://localhost:3000` in your browser.
 
-## 🔑 Default Credentials
-
-- **Admin Login:**
-  - **Email**: `computerscience@wrench-wise.com`
-  - **Password**: `CseWW@2026`
-*(Counselors must request access via the portal, which admins can then approve from the System Configuration dashboard).*
 
 ## ☁️ Deployment
 
