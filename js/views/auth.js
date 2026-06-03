@@ -63,7 +63,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     <label class="form-label" for="req-email">Work Email</label>
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="email" id="req-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
+                        <input type="email" id="req-email" class="form-input" placeholder="name@wrench-wise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 20px;">
@@ -81,7 +81,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     </div>
                 </div>
                 <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
-                    <span>Create Access</span>
+                    <span>Request Access</span>
                     <i data-lucide="send" style="margin-left: 8px;"></i>
                 </button>
             `;
@@ -168,6 +168,11 @@ export function renderLoginView(container, onLoginSuccess) {
                 
                 if (password !== confirm) {
                     showToast("Passwords do not match.", "error");
+                    return;
+                }
+                
+                if (!email.toLowerCase().endsWith("@wrench-wise.com")) {
+                    showToast("Email must end with @wrench-wise.com", "error");
                     return;
                 }
 
