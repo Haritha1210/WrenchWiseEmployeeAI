@@ -229,7 +229,7 @@ function cleanExtractedText(text) {
         .trim();
 }
 
-async function extractTextFromPDF(arrayBuffer) {
+export async function extractTextFromPDF(arrayBuffer) {
     const pdfjsLib = window.pdfjsLib || window['pdfjs-dist/build/pdf'];
     if (!pdfjsLib) {
         throw new Error("PDF.js library failed to load. Please refresh.");
@@ -294,7 +294,7 @@ async function extractTextFromPDF(arrayBuffer) {
     return cleanExtractedText(fullText);
 }
 
-async function extractTextFromDocx(arrayBuffer) {
+export async function extractTextFromDocx(arrayBuffer) {
     if (!window.mammoth) {
         throw new Error("Mammoth.js library failed to load. Please refresh.");
     }
@@ -302,7 +302,7 @@ async function extractTextFromDocx(arrayBuffer) {
     return cleanExtractedText(result.value);
 }
 
-async function parseRawText(text, fileName) {
+export async function parseRawText(text, fileName) {
     // --- LLM Full-Profile Parsing Overhaul (Text Fallback for DOCX/TXT) ---
     let geminiApiKey = null;
     try {

@@ -4,6 +4,7 @@
 
 import { getStorageItem, setStorageItem, showToast, getGeminiApiKey } from '../utils.js';
 import { extractProgramFromBrochure } from '../api/gemini.js';
+import { extractTextFromPDF, extractTextFromDocx, parseRawText } from '../engines/parser.js';
 
 let activeSubSection = 'weights'; // active panel: weights, benchmarks, programs, counselors
 let activeProgIdx = 0; // active program tab index inside programs management
@@ -545,8 +546,44 @@ async function handleBrochureUpload(file) {
             filePayload = { type: 'binary', mimeType, data: base64Data };
         }
 
-        const parsed = await extractProgramFromBrochure(filePayload, apiKey);
-        if (!parsed || !parsed.name) throw new Error("AI brochure parsing failed or returned malformed structure.");
+        let parsed;
+        try {
+            parsed = await extractProgramFromBrochure(filePayload, apiKey);
+            if (!parsed || !parsed.name) throw new Error("AI brochure parsing failed or returned malformed structure.");
+        } catch (e) {
+            console.warn("API extraction failed, using heuristic fallback...", e);
+            let rawText = "";
+            if (fileExtension === 'pdf') {
+                const arrayBuffer = await file.arrayBuffer();
+                rawText = await extractTextFromPDF(arrayBuffer);
+            } else if (fileExtension === 'txt') {
+                rawText = await file.text();
+            } else if (fileExtension === 'docx') {
+                const arrayBuffer = await file.arrayBuffer();
+                rawText = await extractTextFromDocx(arrayBuffer);
+            }
+            
+            if (rawText) {
+                const heuristic = await parseRawText(rawText, file.name);
+                parsed = {
+                    name: file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " "),
+                    skills: heuristic.skills || [],
+                    projects: (heuristic.projects || []).map(p => p.title),
+                    certifications: heuristic.certifications || [],
+                    learningOutcomes: ["Master fundamental concepts", "Apply skills to real-world problems"],
+                    essentialTools: (heuristic.skills || []).slice(0, 5),
+                    roles: [{ title: "Professional", requiredSkills: (heuristic.skills || []).slice(0, 3) }],
+                    projectDetails: {}
+                };
+                (heuristic.projects || []).forEach(p => {
+                    if (p.title) {
+                        parsed.projectDetails[p.title] = { desc: p.desc || "Hands-on project experience.", tech: p.tech || "" };
+                    }
+                });
+            } else {
+                throw new Error("Could not extract text from file for fallback parsing.");
+            }
+        }
 
         const slugId = parsed.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || `program-${Date.now()}`;
         parsed.id = slugId;
