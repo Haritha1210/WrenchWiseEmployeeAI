@@ -727,7 +727,7 @@ function renderCounselorsPanel(container) {
                 // Mailto for new approvals
                 if (!wasActive && c.active && c.email) {
                     const subject = encodeURIComponent("Wrench Wise EmployAI - Account Access Approved");
-                    const body = encodeURIComponent(`Hi ${c.name},\n\nYour request for access to the Wrench Wise EmployAI platform has been approved!\n\nYou can now log in using your credentials.\n\nBest regards,\nAdmin Team`);
+                    const body = encodeURIComponent(`Hi ${c.name},\n\nAccess has been permitted. Now you can login with your credentials.\n\nEmail: ${c.email}\nPassword: ${c.password || '[Password you created]'}\n\nBest regards,\nAdmin Team`);
                     window.open(`mailto:${c.email}?subject=${subject}&body=${body}`, '_blank');
                 }
                 

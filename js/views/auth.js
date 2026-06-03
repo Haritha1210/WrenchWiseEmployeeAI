@@ -21,10 +21,10 @@ export function renderLoginView(container, onLoginSuccess) {
             icon = 'shield-check';
             formContent = `
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="form-label" for="login-email">Admin Email</label>
+                    <label class="form-label" for="login-email">Email Address</label>
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="email" id="login-email" class="form-input" placeholder="admin@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
+                        <input type="email" id="login-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 24px;">
@@ -64,6 +64,20 @@ export function renderLoginView(container, onLoginSuccess) {
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
                         <input type="email" id="req-email" class="form-input" placeholder="name@wrenchwise.com" style="padding-left: 44px; width: 100%;" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label class="form-label" for="req-password">Password</label>
+                    <div class="input-wrapper" style="position: relative;">
+                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
+                        <input type="password" id="req-password" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label" for="req-confirm">Reconfirm Password</label>
+                    <div class="input-wrapper" style="position: relative;">
+                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
+                        <input type="password" id="req-confirm" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
@@ -124,7 +138,18 @@ export function renderLoginView(container, onLoginSuccess) {
                 if (email === 'admin@wrenchwise.com' && password === 'WWAdmin@123') {
                     onLoginSuccess({ id: 'admin_00', name: 'Administrator', email: email, role: 'admin' }, 'admin');
                 } else {
-                    showToast("Invalid admin credentials.", "error");
+                    const counselors = getStorageItem('wrenchwise_counselors', []);
+                    const matchedCounselor = counselors.find(c => c.email.toLowerCase() === email.toLowerCase() && c.password === password);
+                    
+                    if (matchedCounselor) {
+                        if (matchedCounselor.active) {
+                            onLoginSuccess({ id: matchedCounselor.id, name: matchedCounselor.name, email: matchedCounselor.email, role: 'counselor' }, 'counselor');
+                        } else {
+                            showToast("Your account is pending admin approval.", "warning");
+                        }
+                    } else {
+                        showToast("Invalid email or password.", "error");
+                    }
                 }
             });
         } else if (mode === 'request') {
@@ -138,6 +163,13 @@ export function renderLoginView(container, onLoginSuccess) {
                 e.preventDefault();
                 const name = document.getElementById('req-name').value.trim();
                 const email = document.getElementById('req-email').value.trim();
+                const password = document.getElementById('req-password').value;
+                const confirm = document.getElementById('req-confirm').value;
+                
+                if (password !== confirm) {
+                    showToast("Passwords do not match.", "error");
+                    return;
+                }
 
                 let counselors = getStorageItem('wrenchwise_counselors', []);
                 
@@ -150,6 +182,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     id: 'sc_' + Date.now(),
                     name: name,
                     email: email,
+                    password: password,
                     active: false, // New requests need admin approval
                     assessmentsCount: 0,
                     enrollmentsCount: 0
