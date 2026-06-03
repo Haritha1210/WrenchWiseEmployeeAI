@@ -8,11 +8,11 @@ import {
     DEFAULT_SCORING_WEIGHTS, 
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
-} from './data.js?v=3.4';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.4';
-import { renderLoginView } from './views/auth.js?v=3.4';
-import { renderCounselorView } from './views/counselor.js?v=3.4';
-import { renderAdminView } from './views/admin.js?v=3.4';
+} from './data.js?v=3.5';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.5';
+import { renderLoginView } from './views/auth.js?v=3.5';
+import { renderCounselorView } from './views/counselor.js?v=3.5';
+import { renderAdminView } from './views/admin.js?v=3.5';
 
 // Application State
 let currentUser = null;
@@ -213,7 +213,22 @@ function renderHeaderMenu() {
             <a class="header-nav-tab active" data-view="counselor">
                 Assess Resume
             </a>
+            <a class="header-nav-tab" id="btn-change-password" style="cursor: pointer; background: rgba(0,0,0,0.05); border-radius: 6px;">
+                <i data-lucide="key" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 4px;"></i>Change Password
+            </a>
         `;
+        setTimeout(() => {
+            if (window.lucide) window.lucide.createIcons();
+            const btnChangePwd = document.getElementById('btn-change-password');
+            if (btnChangePwd) {
+                btnChangePwd.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if(typeof window.renderChangePasswordModal === 'function') {
+                        window.renderChangePasswordModal(currentUser);
+                    }
+                });
+            }
+        }, 50);
     } else if (currentRole === 'admin') {
         navContainer.innerHTML = `
             <a class="header-nav-tab ${currentView === 'counselor' ? 'active' : ''}" data-view="counselor">
@@ -256,6 +271,10 @@ function navigate(viewName) {
         titleArea.textContent = '';
         renderCounselorView(contentArea, currentUser);
     } else if (viewName === 'admin') {
+        if (currentRole !== 'admin') {
+            showToast("Access Denied.", "error");
+            return;
+        }
         titleArea.textContent = 'System Configuration';
         renderAdminView(contentArea);
     }

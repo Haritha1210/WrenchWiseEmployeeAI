@@ -66,20 +66,6 @@ export function renderLoginView(container, onLoginSuccess) {
                         <input type="email" id="req-email" class="form-input" placeholder="name@wrench-wise.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="form-label" for="req-password">Password</label>
-                    <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="password" id="req-password" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="form-label" for="req-confirm">Reconfirm Password</label>
-                    <div class="input-wrapper" style="position: relative;">
-                        <i data-lucide="lock" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="password" id="req-confirm" class="form-input" placeholder="••••••••" style="padding-left: 44px; width: 100%;" required>
-                    </div>
-                </div>
                 <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
                     <span>Request Access</span>
                     <i data-lucide="send" style="margin-left: 8px;"></i>
@@ -163,13 +149,9 @@ export function renderLoginView(container, onLoginSuccess) {
                 e.preventDefault();
                 const name = document.getElementById('req-name').value.trim();
                 const email = document.getElementById('req-email').value.trim();
-                const password = document.getElementById('req-password').value;
-                const confirm = document.getElementById('req-confirm').value;
                 
-                if (password !== confirm) {
-                    showToast("Passwords do not match.", "error");
-                    return;
-                }
+                // Auto-generate password
+                const generatedPassword = 'WW-' + Math.random().toString(36).slice(-6);
                 
                 if (!email.toLowerCase().endsWith("@wrench-wise.com")) {
                     showToast("Email must end with @wrench-wise.com", "error");
@@ -187,7 +169,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     id: 'sc_' + Date.now(),
                     name: name,
                     email: email,
-                    password: password,
+                    password: generatedPassword,
                     active: false, // New requests need admin approval
                     assessmentsCount: 0,
                     enrollmentsCount: 0
@@ -202,6 +184,85 @@ export function renderLoginView(container, onLoginSuccess) {
                 }, 1500);
             });
         }
+    };
+
+    // Add Change Password Modal logic to the window object so app.js can call it
+    window.renderChangePasswordModal = function(currentUser) {
+        if (!currentUser || currentUser.role !== 'counselor') return;
+
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        overlay.style.display = 'flex';
+        overlay.style.justifyContent = 'center';
+        overlay.style.alignItems = 'center';
+        overlay.style.zIndex = '9999';
+
+        overlay.innerHTML = `
+            <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; background: var(--card-bg); border-radius: var(--radius-md);">
+                <h3 style="margin-bottom: 24px; color: var(--text-main);">Change Password</h3>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" id="cp-current" class="form-input" style="padding-left: 12px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label">New Password</label>
+                    <input type="password" id="cp-new" class="form-input" style="padding-left: 12px;">
+                </div>
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" id="cp-confirm" class="form-input" style="padding-left: 12px;">
+                </div>
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="btn-cp-cancel">Cancel</button>
+                    <button class="btn btn-primary" id="btn-cp-save">Save Password</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        document.getElementById('btn-cp-cancel').addEventListener('click', () => {
+            document.body.removeChild(overlay);
+        });
+
+        document.getElementById('btn-cp-save').addEventListener('click', () => {
+            const curr = document.getElementById('cp-current').value;
+            const newPass = document.getElementById('cp-new').value;
+            const confirmPass = document.getElementById('cp-confirm').value;
+
+            if (!curr || !newPass || !confirmPass) {
+                showToast("All fields are required.", "error");
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                showToast("New passwords do not match.", "error");
+                return;
+            }
+
+            let counselors = getStorageItem('wrenchwise_counselors', []);
+            const index = counselors.findIndex(c => c.id === currentUser.id);
+
+            if (index > -1) {
+                if (counselors[index].password !== curr) {
+                    showToast("Incorrect current password.", "error");
+                    return;
+                }
+
+                counselors[index].password = newPass;
+                setStorageItem('wrenchwise_counselors', counselors);
+                showToast("Password updated successfully!", "success");
+                document.body.removeChild(overlay);
+            } else {
+                showToast("User not found.", "error");
+                document.body.removeChild(overlay);
+            }
+        });
     };
 
     renderForm();
