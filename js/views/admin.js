@@ -34,6 +34,10 @@ export function renderAdminView(container) {
                     <i data-lucide="users"></i>
                     <span>Manage Counselors</span>
                 </button>
+                <button class="admin-menu-item" data-sub="emailjs">
+                    <i data-lucide="mail"></i>
+                    <span>Email Config</span>
+                </button>
             </div>
             
             <!-- Right Sub-Content Panel -->
@@ -78,7 +82,60 @@ function renderActiveSubSection() {
         renderProgramsPanel(panel);
     } else if (activeSubSection === 'counselors') {
         renderCounselorsPanel(panel);
+    } else if (activeSubSection === 'emailjs') {
+        renderEmailJSPanel(panel);
     }
+}
+
+/**
+ * 5. EMAILJS CONFIG PANEL
+ */
+function renderEmailJSPanel(container) {
+    const config = getStorageItem('wrenchwise_emailjs_config', { serviceId: '', templateId: '', publicKey: '' });
+
+    container.innerHTML = `
+        <h3 class="mb-24" style="color:var(--text-main); font-family:var(--font-heading);"><i data-lucide="mail" style="vertical-align:middle; margin-right:8px; color:var(--primary-light);"></i>Email Settings</h3>
+        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:24px;">Configure your free EmailJS account to automatically send background emails to counselors when their access is approved.</p>
+        
+        <div style="display:flex; flex-direction:column; gap:20px; max-width: 600px;">
+            <div class="form-group">
+                <label class="form-label">Service ID</label>
+                <input type="text" id="emailjs-service" class="form-input" value="${config.serviceId}" placeholder="e.g. service_xxxxxx" style="padding-left:16px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Template ID</label>
+                <input type="text" id="emailjs-template" class="form-input" value="${config.templateId}" placeholder="e.g. template_xxxxxx" style="padding-left:16px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Public Key</label>
+                <input type="text" id="emailjs-public" class="form-input" value="${config.publicKey}" placeholder="e.g. xxxxxxxxxxxxxxxxxx" style="padding-left:16px;">
+            </div>
+            
+            <button id="btn-save-emailjs" class="btn btn-primary" style="margin-top:10px; width: fit-content;">Save Email Configuration</button>
+        </div>
+        
+        <div style="margin-top: 32px; padding: 20px; background: rgba(3, 105, 161, 0.05); border: 1px solid rgba(3, 105, 161, 0.2); border-radius: var(--radius-md);">
+            <h4 style="color: var(--primary); margin-bottom: 12px; font-size: 1rem;">Template Setup Guide</h4>
+            <p style="color: var(--text-main); font-size: 0.9rem; margin-bottom: 12px;">Make sure your EmailJS Template contains the following EXACT variables inside double curly braces:</p>
+            <ul style="color: var(--text-muted); font-size: 0.85rem; padding-left: 20px; line-height: 1.6;">
+                <li><code>{{to_name}}</code> - The counselor's full name</li>
+                <li><code>{{to_email}}</code> - The counselor's email address (must be used in the "To Email" setting)</li>
+                <li><code>{{password}}</code> - The password the counselor created</li>
+            </ul>
+        </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+
+    document.getElementById('btn-save-emailjs').addEventListener('click', () => {
+        const newConfig = {
+            serviceId: document.getElementById('emailjs-service').value.trim(),
+            templateId: document.getElementById('emailjs-template').value.trim(),
+            publicKey: document.getElementById('emailjs-public').value.trim()
+        };
+        setStorageItem('wrenchwise_emailjs_config', newConfig);
+        showToast("EmailJS Configuration saved successfully!", "success");
+    });
 }
 
 /**
@@ -724,11 +781,35 @@ function renderCounselorsPanel(container) {
                 setStorageItem('wrenchwise_counselors', counselors);
                 showToast(`Counselor ${c.name} ${c.active ? 'enabled' : 'disabled'}!`, "success");
                 
-                // Mailto for new approvals
+                // Background Email for new approvals
                 if (!wasActive && c.active && c.email) {
-                    const subject = encodeURIComponent("Wrench Wise EmployAI - Account Access Approved");
-                    const body = encodeURIComponent(`Hi ${c.name},\n\nAccess has been permitted. Now you can login with your credentials.\n\nEmail: ${c.email}\nPassword: ${c.password || '[Password you created]'}\n\nBest regards,\nAdmin Team`);
-                    window.location.href = `mailto:${c.email}?subject=${subject}&body=${body}`;
+                    const emailConfig = getStorageItem('wrenchwise_emailjs_config', null);
+                    
+                    if (emailConfig && emailConfig.serviceId && emailConfig.templateId && emailConfig.publicKey && window.emailjs) {
+                        // Send automatically in background via EmailJS
+                        showToast("Sending automatic approval email...", "info");
+                        emailjs.send(
+                            emailConfig.serviceId,
+                            emailConfig.templateId,
+                            {
+                                to_name: c.name,
+                                to_email: c.email,
+                                password: c.password || '[Password you created]'
+                            },
+                            emailConfig.publicKey
+                        ).then(() => {
+                            showToast(`Approval email successfully sent to ${c.email}!`, "success");
+                        }).catch(err => {
+                            console.error("EmailJS Error:", err);
+                            showToast("Failed to send email. Check your EmailJS Configuration.", "error");
+                        });
+                    } else {
+                        // Fallback to mailto if EmailJS is not configured
+                        const subject = encodeURIComponent("Wrench Wise EmployAI - Account Access Approved");
+                        const body = encodeURIComponent(`Hi ${c.name},\n\nAccess has been permitted. Now you can login with your credentials.\n\nEmail: ${c.email}\nPassword: ${c.password || '[Password you created]'}\n\nBest regards,\nAdmin Team`);
+                        window.location.href = `mailto:${c.email}?subject=${subject}&body=${body}`;
+                        showToast("EmailJS not configured. Falling back to default mail client.", "warning");
+                    }
                 }
                 
                 renderCounselorTable();
