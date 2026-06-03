@@ -67,7 +67,7 @@ app.post('/api/send-email', async (req, res) => {
         
         if (!response.ok) {
             const errBody = await response.text();
-            throw new Error(\`Brevo API Error: \${response.status} - \${errBody}\`);
+            throw new Error(`Brevo API Error: ${response.status} - ${errBody}`);
         }
         
         res.json({ success: true, message: "Email sent via Brevo" });
