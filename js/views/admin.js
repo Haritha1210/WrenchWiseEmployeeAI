@@ -393,7 +393,7 @@ function renderProgramsPanel(container) {
     }
 
     // Hook tab switches
-    const tabBtns = container.querySelectorAll('.tab-btn:not(#btn-add-program)');
+    const tabBtns = container.querySelectorAll('.tab-btn[data-idx]');
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             activeProgIdx = parseInt(btn.getAttribute('data-idx'));
