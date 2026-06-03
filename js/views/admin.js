@@ -313,6 +313,11 @@ function renderProgramsPanel(container) {
         const btnToggle = document.getElementById('btn-toggle-program');
         if (btnToggle) {
             btnToggle.addEventListener('click', () => {
+                const action = prog.disabled ? 'enable' : 'disable';
+                if (!window.confirm(`Are you sure you want to ${action} this program?`)) {
+                    return;
+                }
+                
                 if (!prog.disabled && programs.filter(p => !p.disabled).length <= 1) {
                     showToast("Cannot disable the last active program.", "warning");
                     return;
