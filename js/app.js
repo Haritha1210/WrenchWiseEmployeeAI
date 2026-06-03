@@ -9,8 +9,8 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.5';
-import { renderLoginView } from './views/auth.js?v=3.5';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.6';
+import { renderLoginView } from './views/auth.js?v=3.6';
 import { renderCounselorView } from './views/counselor.js?v=3.5';
 import { renderAdminView } from './views/admin.js?v=3.5';
 

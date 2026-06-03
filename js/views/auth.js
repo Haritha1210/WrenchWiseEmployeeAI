@@ -10,16 +10,27 @@ import { getStorageItem, setStorageItem, showToast } from '../utils.js?v=2.1';
  * @param {Function} onLoginSuccess - Callback when login completes: (userObj, role) => {}
  */
 export function renderLoginView(container, onLoginSuccess) {
-    let mode = 'admin_login'; // 'admin_login', 'request'
+    let mode = 'counselor_login'; // 'admin_login', 'counselor_login', 'request'
 
     const renderForm = () => {
         let title, subtitle, icon, formContent, footerContent;
+        
+        let toggleTabs = '';
+        if (mode === 'admin_login' || mode === 'counselor_login') {
+            toggleTabs = `
+                <div style="display: flex; gap: 8px; margin-bottom: 24px; padding: 4px; background: rgba(0,0,0,0.05); border-radius: 8px;">
+                    <button id="tab-counselor" style="flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: ${mode === 'counselor_login' ? 'var(--card-bg)' : 'transparent'}; box-shadow: ${mode === 'counselor_login' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'}; color: ${mode === 'counselor_login' ? 'var(--primary)' : 'var(--text-muted)'};">Counselor</button>
+                    <button id="tab-admin" style="flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; transition: all 0.2s; background: ${mode === 'admin_login' ? 'var(--card-bg)' : 'transparent'}; box-shadow: ${mode === 'admin_login' ? '0 2px 4px rgba(0,0,0,0.05)' : 'none'}; color: ${mode === 'admin_login' ? 'var(--primary)' : 'var(--text-muted)'};">Admin</button>
+                </div>
+            `;
+        }
 
-        if (mode === 'admin_login') {
-            title = '';
+        if (mode === 'admin_login' || mode === 'counselor_login') {
+            title = mode === 'admin_login' ? 'System Admin' : 'Counselor Portal';
             subtitle = 'Sign in with your secure credentials';
             icon = 'shield-check';
             formContent = `
+                ${toggleTabs}
                 <div class="form-group" style="margin-bottom: 20px;">
                     <label class="form-label" for="login-email">Email Address</label>
                     <div class="input-wrapper" style="position: relative;">
@@ -109,7 +120,18 @@ export function renderLoginView(container, onLoginSuccess) {
         }
 
         // Attach event listeners based on mode
-        if (mode === 'admin_login') {
+        if (mode === 'admin_login' || mode === 'counselor_login') {
+            document.getElementById('tab-admin').addEventListener('click', (e) => {
+                e.preventDefault();
+                mode = 'admin_login';
+                renderForm();
+            });
+            document.getElementById('tab-counselor').addEventListener('click', (e) => {
+                e.preventDefault();
+                mode = 'counselor_login';
+                renderForm();
+            });
+
             document.getElementById('link-request-access').addEventListener('click', (e) => {
                 e.preventDefault();
                 mode = 'request';
@@ -121,9 +143,13 @@ export function renderLoginView(container, onLoginSuccess) {
                 const email = document.getElementById('login-email').value.trim();
                 const password = document.getElementById('login-password').value.trim();
 
-                if (email === 'computerscience@wrench-wise.com' && password === 'CseWW@2026') {
-                    onLoginSuccess({ id: 'admin_00', name: 'Administrator', email: email, role: 'admin' }, 'admin');
-                } else {
+                if (mode === 'admin_login') {
+                    if (email === 'computerscience@wrench-wise.com' && password === 'CseWW@2026') {
+                        onLoginSuccess({ id: 'admin_00', name: 'Administrator', email: email, role: 'admin' }, 'admin');
+                    } else {
+                        showToast("Invalid admin credentials.", "error");
+                    }
+                } else if (mode === 'counselor_login') {
                     const counselors = getStorageItem('wrenchwise_counselors', []);
                     const matchedCounselor = counselors.find(c => c.email.toLowerCase() === email.toLowerCase() && c.password === password);
                     
@@ -134,14 +160,14 @@ export function renderLoginView(container, onLoginSuccess) {
                             showToast("Your account is pending admin approval.", "warning");
                         }
                     } else {
-                        showToast("Invalid email or password.", "error");
+                        showToast("Invalid counselor credentials.", "error");
                     }
                 }
             });
         } else if (mode === 'request') {
             document.getElementById('link-back-login').addEventListener('click', (e) => {
                 e.preventDefault();
-                mode = 'admin_login';
+                mode = 'counselor_login';
                 renderForm();
             });
 
@@ -179,7 +205,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 showToast("Request submitted successfully! Pending admin approval.", "success");
                 
                 setTimeout(() => {
-                    mode = 'admin_login';
+                    mode = 'counselor_login';
                     renderForm();
                 }, 1500);
             });
