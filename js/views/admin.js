@@ -746,7 +746,7 @@ function renderCounselorsPanel(container) {
                     })
                     .catch(err => {
                         console.error("Brevo Delivery Error:", err);
-                        showToast("Failed to dispatch email. Is BREVO_API_KEY configured in .env?", "error");
+                        showToast(err.message || "Failed to dispatch email. Check server logs.", "error");
                     });
                 }
                 
