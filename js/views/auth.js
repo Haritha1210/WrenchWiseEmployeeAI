@@ -74,7 +74,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     <label class="form-label" for="req-email">Work Email</label>
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="email" id="req-email" class="form-input" placeholder="name@wrench-wise.com" style="padding-left: 44px; width: 100%;" required>
+                        <input type="email" id="req-email" class="form-input" placeholder="name@wrench-wise.com or @gmail.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
@@ -179,8 +179,9 @@ export function renderLoginView(container, onLoginSuccess) {
                 // Auto-generate password
                 const generatedPassword = 'WW-' + Math.random().toString(36).slice(-6);
                 
-                if (!email.toLowerCase().endsWith("@wrench-wise.com")) {
-                    showToast("Email must end with @wrench-wise.com", "error");
+                const lowerEmail = email.toLowerCase();
+                if (!lowerEmail.endsWith("@wrench-wise.com") && !lowerEmail.endsWith("@gmail.com")) {
+                    showToast("Email must end with @wrench-wise.com or @gmail.com", "error");
                     return;
                 }
 
