@@ -9,10 +9,10 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.3';
-import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.3';
-import { renderCounselorView } from './views/counselor.js?v=4.3';
-import { renderAdminView } from './views/admin.js?v=4.3';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.4';
+import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.4';
+import { renderCounselorView } from './views/counselor.js?v=4.4';
+import { renderAdminView } from './views/admin.js?v=4.4';
 
 // Application State
 let currentUser = null;
@@ -68,26 +68,16 @@ function init() {
         setStorageItem('wrenchwise_leads', INITIAL_LEADS);
     }
 
-    // 2. Check for existing session
-    let savedUser = getStorageItem('wrenchwise_session_user', null);
-    let savedRole = getStorageItem('wrenchwise_session_role', null);
-
-    // If no session exists, or if the session is Admin (we don't want Admin to persist on reload)
-    if (!savedUser || !savedRole || savedRole === 'admin') {
-        savedUser = null;
-        savedRole = null;
-        localStorage.removeItem('wrenchwise_session_user');
-        localStorage.removeItem('wrenchwise_session_role');
-    }
+    // Always clear session on load to force login page
+    let savedUser = null;
+    let savedRole = null;
+    localStorage.removeItem('wrenchwise_session_user');
+    localStorage.removeItem('wrenchwise_session_role');
 
     // Bind Core Shell UI Event Listeners
     bindShellEvents();
 
-    if (savedUser && savedRole) {
-        loginSuccess(savedUser, savedRole);
-    } else {
-        navigate('login');
-    }
+    navigate('login');
 
     if (window.lucide) window.lucide.createIcons();
 }
