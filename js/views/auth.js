@@ -218,8 +218,8 @@ export function renderLoginView(container, onLoginSuccess) {
 
 export function renderChangePasswordModal(currentUser) {
     if (!currentUser || currentUser.role !== 'counselor') return;
-    import('./utils.js').then(({ getStorageItem, setStorageItem, showToast }) => {
-        const overlay = document.createElement('div');
+
+    const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
         overlay.style.left = '0';
@@ -292,5 +292,4 @@ export function renderChangePasswordModal(currentUser) {
                 document.body.removeChild(overlay);
             }
         });
-    });
 }
