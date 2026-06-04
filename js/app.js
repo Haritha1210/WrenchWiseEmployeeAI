@@ -9,10 +9,10 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.8';
-import { renderLoginView } from './views/auth.js?v=3.8';
-import { renderCounselorView } from './views/counselor.js?v=3.8';
-import { renderAdminView } from './views/admin.js?v=3.8';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.9';
+import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=3.9';
+import { renderCounselorView } from './views/counselor.js?v=3.9';
+import { renderAdminView } from './views/admin.js?v=3.9';
 
 // Application State
 let currentUser = null;
@@ -223,8 +223,8 @@ function renderHeaderMenu() {
             if (btnChangePwd) {
                 btnChangePwd.addEventListener('click', (e) => {
                     e.preventDefault();
-                    if(typeof window.renderChangePasswordModal === 'function') {
-                        window.renderChangePasswordModal(currentUser);
+                    if(typeof renderChangePasswordModal === 'function') {
+                        renderChangePasswordModal(currentUser);
                     }
                 });
             }
@@ -244,8 +244,10 @@ function renderHeaderMenu() {
     const tabs = navContainer.querySelectorAll('.header-nav-tab');
     tabs.forEach(tab => {
         tab.addEventListener('click', (e) => {
-            e.preventDefault();
             const view = tab.getAttribute('data-view');
+            if (!view) return; // Skip if no data-view (like the change password button)
+            
+            e.preventDefault();
             navigate(view);
         });
     });

@@ -213,10 +213,12 @@ export function renderLoginView(container, onLoginSuccess) {
         }
     };
 
-    // Add Change Password Modal logic to the window object so app.js can call it
-    window.renderChangePasswordModal = function(currentUser) {
-        if (!currentUser || currentUser.role !== 'counselor') return;
+    renderForm();
+}
 
+export function renderChangePasswordModal(currentUser) {
+    if (!currentUser || currentUser.role !== 'counselor') return;
+    import('./utils.js').then(({ getStorageItem, setStorageItem, showToast }) => {
         const overlay = document.createElement('div');
         overlay.style.position = 'fixed';
         overlay.style.top = '0';
@@ -290,7 +292,5 @@ export function renderLoginView(container, onLoginSuccess) {
                 document.body.removeChild(overlay);
             }
         });
-    };
-
-    renderForm();
+    });
 }
