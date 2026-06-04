@@ -219,50 +219,55 @@ export function renderLoginView(container, onLoginSuccess) {
 export function renderChangePasswordModal(currentUser) {
     if (!currentUser || currentUser.role !== 'counselor') return;
 
+    // Remove any existing modal to prevent duplicate ID conflicts
+    const existingOverlay = document.getElementById('change-password-overlay');
+    if (existingOverlay) existingOverlay.remove();
+
     const overlay = document.createElement('div');
-        overlay.style.position = 'fixed';
-        overlay.style.top = '0';
-        overlay.style.left = '0';
-        overlay.style.width = '100vw';
-        overlay.style.height = '100vh';
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-        overlay.style.display = 'flex';
-        overlay.style.justifyContent = 'center';
-        overlay.style.alignItems = 'center';
-        overlay.style.zIndex = '9999';
+    overlay.id = 'change-password-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0';
+    overlay.style.left = '0';
+    overlay.style.width = '100vw';
+    overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    overlay.style.display = 'flex';
+    overlay.style.justifyContent = 'center';
+    overlay.style.alignItems = 'center';
+    overlay.style.zIndex = '9999';
 
-        overlay.innerHTML = `
-            <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; background: var(--card-bg); border-radius: var(--radius-md);">
-                <h3 style="margin-bottom: 24px; color: var(--text-main);">Change Password</h3>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">Current Password</label>
-                    <input type="password" id="cp-current" class="form-input" style="padding-left: 12px;">
-                </div>
-                <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="form-label">New Password</label>
-                    <input type="password" id="cp-new" class="form-input" style="padding-left: 12px;">
-                </div>
-                <div class="form-group" style="margin-bottom: 24px;">
-                    <label class="form-label">Confirm New Password</label>
-                    <input type="password" id="cp-confirm" class="form-input" style="padding-left: 12px;">
-                </div>
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button class="btn btn-secondary" id="btn-cp-cancel">Cancel</button>
-                    <button class="btn btn-primary" id="btn-cp-save">Save Password</button>
-                </div>
+    overlay.innerHTML = `
+        <div class="glass-card" style="width: 100%; max-width: 400px; padding: 32px; background: var(--card-bg); border-radius: var(--radius-md);">
+            <h3 style="margin-bottom: 24px; color: var(--text-main);">Change Password</h3>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">Current Password</label>
+                <input type="password" id="cp-current" class="form-input" style="padding-left: 12px;">
             </div>
-        `;
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label">New Password</label>
+                <input type="password" id="cp-new" class="form-input" style="padding-left: 12px;">
+            </div>
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label class="form-label">Confirm New Password</label>
+                <input type="password" id="cp-confirm" class="form-input" style="padding-left: 12px;">
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button class="btn btn-secondary" id="btn-cp-cancel">Cancel</button>
+                <button class="btn btn-primary" id="btn-cp-save">Save Password</button>
+            </div>
+        </div>
+    `;
 
-        document.body.appendChild(overlay);
+    document.body.appendChild(overlay);
 
-        document.getElementById('btn-cp-cancel').addEventListener('click', () => {
-            document.body.removeChild(overlay);
-        });
+    overlay.querySelector('#btn-cp-cancel').addEventListener('click', () => {
+        overlay.remove();
+    });
 
-        document.getElementById('btn-cp-save').addEventListener('click', () => {
-            const curr = document.getElementById('cp-current').value;
-            const newPass = document.getElementById('cp-new').value;
-            const confirmPass = document.getElementById('cp-confirm').value;
+    overlay.querySelector('#btn-cp-save').addEventListener('click', () => {
+        const curr = overlay.querySelector('#cp-current').value;
+        const newPass = overlay.querySelector('#cp-new').value;
+        const confirmPass = overlay.querySelector('#cp-confirm').value;
 
             if (!curr || !newPass || !confirmPass) {
                 showToast("All fields are required.", "error");
@@ -286,10 +291,10 @@ export function renderChangePasswordModal(currentUser) {
                 counselors[index].password = newPass;
                 setStorageItem('wrenchwise_counselors', counselors);
                 showToast("Password updated successfully!", "success");
-                document.body.removeChild(overlay);
+                overlay.remove();
             } else {
                 showToast("User not found.", "error");
-                document.body.removeChild(overlay);
+                overlay.remove();
             }
         });
 }
