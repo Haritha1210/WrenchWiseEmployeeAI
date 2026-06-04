@@ -30,7 +30,24 @@ window.onerror = function(message, source, lineno, colno, error) {
 /**
  * Bootstraps the application on page load.
  */
-function init() {
+async function init() {
+    // Load database state from backend server first to synchronize localStorage
+    try {
+        const res = await fetch('/api/db/load');
+        if (res.ok) {
+            const db = await res.json();
+            if (db) {
+                if (db.programs !== null) localStorage.setItem('wrenchwise_programs', JSON.stringify(db.programs));
+                if (db.benchmarks !== null) localStorage.setItem('wrenchwise_benchmarks', JSON.stringify(db.benchmarks));
+                if (db.weights !== null) localStorage.setItem('wrenchwise_weights', JSON.stringify(db.weights));
+                if (db.counselors !== null) localStorage.setItem('wrenchwise_counselors', JSON.stringify(db.counselors));
+                if (db.leads !== null) localStorage.setItem('wrenchwise_leads', JSON.stringify(db.leads));
+            }
+        }
+    } catch (e) {
+        console.warn("Failed to synchronize with server database, using cached local data:", e);
+    }
+
     // 1. Initialize Seed Data in localStorage if not already set or invalid (or using old signatures)
     const progData = getStorageItem('wrenchwise_programs', null);
     const isOldProg = progData && Array.isArray(progData) && (

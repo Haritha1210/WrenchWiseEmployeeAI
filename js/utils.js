@@ -21,6 +21,25 @@ export function getStorageItem(key, defaultValue) {
 export function setStorageItem(key, value) {
     try {
         localStorage.setItem(key, JSON.stringify(value));
+        
+        // Sync with backend database if it is a wrenchwise data key
+        const syncKeys = [
+            'wrenchwise_programs',
+            'wrenchwise_benchmarks',
+            'wrenchwise_weights',
+            'wrenchwise_counselors',
+            'wrenchwise_leads'
+        ];
+        if (syncKeys.includes(key)) {
+            const dbKey = key.replace('wrenchwise_', '');
+            fetch('/api/db/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ key: dbKey, data: value })
+            }).catch(err => console.error(`Database background sync failed for key "${dbKey}":`, err));
+        }
     } catch (e) {
         console.error("Local storage write failed", e);
     }

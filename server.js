@@ -3,11 +3,14 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dns from 'dns';
+import fs from 'fs';
 
 dns.setDefaultResultOrder('ipv4first');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const DB_PATH = path.join(__dirname, 'db.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -58,6 +61,10 @@ app.post('/api/send-email', async (req, res) => {
     };
 
     try {
+        console.log("Attempting to send email via Brevo to:", to_email);
+        console.log("Using API Key:", apiKey ? apiKey.substring(0, 15) + "..." : "undefined");
+        console.log("Sender Email:", adminEmail);
+        
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: {
@@ -68,15 +75,66 @@ app.post('/api/send-email', async (req, res) => {
             body: JSON.stringify(emailData)
         });
         
+        const responseText = await response.text();
+        console.log("Brevo API Response Status:", response.status);
+        console.log("Brevo API Response Body:", responseText);
+        
         if (!response.ok) {
-            const errBody = await response.text();
-            throw new Error(`Brevo API Error: ${response.status} - ${errBody}`);
+            throw new Error(`Brevo API Error: ${response.status} - ${responseText}`);
         }
         
         res.json({ success: true, message: "Email sent via Brevo" });
     } catch (error) {
         console.error("Failed to send email via Brevo:", error);
         res.status(500).json({ error: error.message });
+    }
+});
+
+
+// Database Load Endpoint
+app.get('/api/db/load', (req, res) => {
+    try {
+        if (!fs.existsSync(DB_PATH)) {
+            return res.json({
+                weights: null,
+                benchmarks: null,
+                programs: null,
+                counselors: null,
+                leads: null
+            });
+        }
+        const data = fs.readFileSync(DB_PATH, 'utf8');
+        res.json(JSON.parse(data));
+    } catch (error) {
+        console.error("Failed to load database:", error);
+        res.status(500).json({ error: "Failed to load database" });
+    }
+});
+
+// Database Save Endpoint
+app.post('/api/db/save', (req, res) => {
+    const { key, data } = req.body;
+    if (!key) {
+        return res.status(400).json({ error: "Missing database key" });
+    }
+    try {
+        let db = {
+            weights: null,
+            benchmarks: null,
+            programs: null,
+            counselors: null,
+            leads: null
+        };
+        if (fs.existsSync(DB_PATH)) {
+            const currentData = fs.readFileSync(DB_PATH, 'utf8');
+            db = JSON.parse(currentData);
+        }
+        db[key] = data;
+        fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2), 'utf8');
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Failed to save database:", error);
+        res.status(500).json({ error: "Failed to save database" });
     }
 });
 

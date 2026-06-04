@@ -74,7 +74,7 @@ export function renderLoginView(container, onLoginSuccess) {
                     <label class="form-label" for="req-email">Work Email</label>
                     <div class="input-wrapper" style="position: relative;">
                         <i data-lucide="mail" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px;"></i>
-                        <input type="email" id="req-email" class="form-input" placeholder="name@wrench-wise.com or @gmail.com" style="padding-left: 44px; width: 100%;" required>
+                        <input type="email" id="req-email" class="form-input" placeholder="name@wrenchwise.com or @gmail.com" style="padding-left: 44px; width: 100%;" required>
                     </div>
                 </div>
                 <button type="submit" id="btn-submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 1rem; justify-content: center; background: var(--primary-gradient); color: #ffffff; border:none; box-shadow: 0 4px 14px var(--primary-glow);">
@@ -144,7 +144,7 @@ export function renderLoginView(container, onLoginSuccess) {
                 const password = document.getElementById('login-password').value.trim();
 
                 if (mode === 'admin_login') {
-                    if (email === 'computerscience@wrench-wise.com' && password === 'CseWW@2026') {
+                    if ((email === 'computerscience@wrenchwise.com' || email === 'computerscience@wrench-wise.com') && password === 'CseWW@2026') {
                         onLoginSuccess({ id: 'admin_00', name: 'Administrator', email: email, role: 'admin' }, 'admin');
                     } else {
                         showToast("Invalid admin credentials.", "error");
@@ -180,8 +180,8 @@ export function renderLoginView(container, onLoginSuccess) {
                 const generatedPassword = 'WW-' + Math.random().toString(36).slice(-6);
                 
                 const lowerEmail = email.toLowerCase();
-                if (!lowerEmail.endsWith("@wrench-wise.com") && !lowerEmail.endsWith("@gmail.com")) {
-                    showToast("Email must end with @wrench-wise.com or @gmail.com", "error");
+                if (!lowerEmail.endsWith("@wrenchwise.com") && !lowerEmail.endsWith("@wrench-wise.com") && !lowerEmail.endsWith("@gmail.com")) {
+                    showToast("Email must end with @wrenchwise.com or @gmail.com", "error");
                     return;
                 }
 
