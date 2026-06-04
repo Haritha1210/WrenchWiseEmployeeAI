@@ -117,7 +117,7 @@ function handleUploadedFile(file) {
 
     const interval = setInterval(() => {
         if (progress < 85) {
-            progress += Math.floor(Math.random() * 4) + 2;
+            progress += 15;
             if (progress > 85) progress = 85;
             const pctEl = document.getElementById('parse-percentage');
             if (pctEl) pctEl.textContent = `${progress}%`;
@@ -125,7 +125,7 @@ function handleUploadedFile(file) {
             const statusEl = document.getElementById('parse-loader-status');
             if (statusEl) statusEl.textContent = statusMessages[msgIndex];
         }
-    }, 30);
+    }, 10);
 
     parseResumeFile(file)
         .then(candidate => {
@@ -977,7 +977,7 @@ function animateCountUp(elementId, targetVal) {
     const el = document.getElementById(elementId);
     if (!el) return;
     let curr = 0;
-    const step = Math.ceil(targetVal / 30);
+    const step = Math.ceil(targetVal / 10);
     const timer = setInterval(() => {
         curr += step;
         if (curr >= targetVal) {
@@ -985,7 +985,7 @@ function animateCountUp(elementId, targetVal) {
             clearInterval(timer);
         }
         el.textContent = curr;
-    }, 20);
+    }, 10);
 }
 
 /**
@@ -1013,6 +1013,6 @@ function animateTimelineNodes(curr, fut) {
             } else {
                 node.className = "timeline-node complete";
             }
-        }, i * 400); // 400ms sequential stagger
+        }, i * 50); // 50ms sequential stagger
     });
 }

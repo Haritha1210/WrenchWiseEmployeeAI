@@ -9,10 +9,10 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=3.9';
-import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=3.9';
-import { renderCounselorView } from './views/counselor.js?v=3.9';
-import { renderAdminView } from './views/admin.js?v=3.9';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.0';
+import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.0';
+import { renderCounselorView } from './views/counselor.js?v=4.0';
+import { renderAdminView } from './views/admin.js?v=4.0';
 
 // Application State
 let currentUser = null;
@@ -171,22 +171,14 @@ function logout() {
     localStorage.removeItem('wrenchwise_session_user');
     localStorage.removeItem('wrenchwise_session_role');
     
-    if (currentRole === 'admin') {
-        // Logging out of Admin returns to Counselor view
-        currentUser = null;
-        currentRole = null;
-        init(); // Re-inits default counselor session
-        showToast("Logged out of Admin.", "info");
-        // Counselors clicking Admin Login go to login page (now just logs out everyone to login)
-        currentUser = null;
-        currentRole = null;
-        
-        // Hide shell elements
-        document.getElementById('sidebar').classList.add('hidden');
-        document.querySelector('.app-header').classList.add('hidden');
-        
-        navigate('login');
-    }
+    currentUser = null;
+    currentRole = null;
+    
+    // Hide shell elements
+    document.getElementById('sidebar').classList.add('hidden');
+    document.querySelector('.app-header').classList.add('hidden');
+    
+    navigate('login');
 }
 
 /**
