@@ -9,10 +9,10 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.0';
-import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.0';
-import { renderCounselorView } from './views/counselor.js?v=4.0';
-import { renderAdminView } from './views/admin.js?v=4.0';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.1';
+import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.1';
+import { renderCounselorView } from './views/counselor.js?v=4.1';
+import { renderAdminView } from './views/admin.js?v=4.1';
 
 // Application State
 let currentUser = null;
@@ -126,13 +126,8 @@ function loginSuccess(user, role) {
     // Update top bar button text
     const btnAuth = document.getElementById('btn-auth-toggle');
     if (btnAuth) {
-        if (role === 'admin') {
-            btnAuth.innerHTML = '<i data-lucide="log-out" style="width: 18px; height: 18px;"></i><span>Logout</span>';
-            btnAuth.title = "Log Out";
-        } else {
-            btnAuth.innerHTML = '<i data-lucide="shield" style="width: 18px; height: 18px;"></i><span>Admin Login</span>';
-            btnAuth.title = "Admin Login";
-        }
+        btnAuth.innerHTML = '<i data-lucide="log-out" style="width: 18px; height: 18px;"></i><span>Logout</span>';
+        btnAuth.title = "Log Out";
         if (window.lucide) window.lucide.createIcons();
     }
 
