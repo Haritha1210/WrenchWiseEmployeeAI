@@ -4,14 +4,15 @@ export default async function handler(req, res) {
             return res.status(405).json({ error: "Method not allowed" });
         }
 
-        // Retrieve and sanitize environment variables
+        // Retrieve and sanitize environment variables aggressively
         const rawApiKey = process.env.BREVO_API_KEY || '';
         const rawAdminEmail = process.env.ADMIN_EMAIL || 'computerscience@wrench-wise.com';
         const rawSenderEmail = process.env.BREVO_SENDER_EMAIL || rawAdminEmail;
 
-        const apiKey = rawApiKey.replace(/[\r\n\s]+/g, '');
-        const adminEmail = rawAdminEmail.replace(/[\r\n\s]+/g, '');
-        const senderEmail = rawSenderEmail.replace(/[\r\n\s]+/g, '');
+        // Strip any non-ASCII characters, spaces, newlines, or control chars
+        const apiKey = rawApiKey.replace(/[^a-zA-Z0-9-]/g, '');
+        const adminEmail = rawAdminEmail.replace(/[^a-zA-Z0-9@._+-]/g, '');
+        const senderEmail = rawSenderEmail.replace(/[^a-zA-Z0-9@._+-]/g, '');
         
         if (!apiKey) {
             return res.status(500).json({ error: "Server missing BREVO_API_KEY" });
@@ -36,8 +37,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Missing required fields (to_email, password)" });
         }
 
-        // Sanitize recipient email
-        const cleanToEmail = to_email.replace(/[\r\n\s]+/g, '');
+        // Sanitize recipient email aggressively
+        const cleanToEmail = to_email.replace(/[^a-zA-Z0-9@._+-]/g, '');
         
         const emailData = {
             sender: { name: "Wrench Wise EmployAI", email: senderEmail },
