@@ -739,9 +739,24 @@ function renderCounselorsPanel(container) {
                             password: c.password
                         })
                     })
-                    .then(res => res.json())
+                    .then(async res => {
+                        const contentType = res.headers.get('content-type');
+                        if (contentType && contentType.includes('application/json')) {
+                            const data = await res.json();
+                            if (!res.ok || data.error) {
+                                throw new Error(data.error || `Server Error: ${res.status}`);
+                            }
+                            return data;
+                        } else {
+                            const html = await res.text();
+                            // Check if it looks like a Vercel/server error page
+                            if (html.includes('Deployment Assistant') || html.includes('Vercel') || html.includes('500') || html.includes('Internal Server Error')) {
+                                throw new Error("Vercel Serverless Function error (500). Please check your Vercel project logs and ensure environment variables are configured in the Vercel Dashboard.");
+                            }
+                            throw new Error(`Server returned non-JSON response (${res.status})`);
+                        }
+                    })
                     .then(data => {
-                        if (data.error) throw new Error(data.error);
                         showToast(`Approval email successfully sent to ${c.email}!`, "success");
                     })
                     .catch(err => {
