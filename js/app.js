@@ -9,10 +9,10 @@ import {
     INITIAL_COUNSELORS, 
     INITIAL_LEADS 
 } from './data.js?v=3.5';
-import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.4';
-import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.4';
-import { renderCounselorView } from './views/counselor.js?v=4.4';
-import { renderAdminView } from './views/admin.js?v=4.4';
+import { getStorageItem, setStorageItem, showToast } from './utils.js?v=4.5';
+import { renderLoginView, renderChangePasswordModal } from './views/auth.js?v=4.5';
+import { renderCounselorView } from './views/counselor.js?v=4.5';
+import { renderAdminView } from './views/admin.js?v=4.5';
 
 // Application State
 let currentUser = null;

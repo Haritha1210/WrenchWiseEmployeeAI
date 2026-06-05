@@ -27,9 +27,13 @@ app.get('/api/get-gemini-key', (req, res) => {
 
 app.post('/api/send-email', async (req, res) => {
     try {
-        const apiKey = process.env.BREVO_API_KEY;
-        const adminEmail = process.env.ADMIN_EMAIL || 'computerscience@wrench-wise.com';
-        const senderEmail = process.env.BREVO_SENDER_EMAIL || adminEmail;
+        const rawApiKey = process.env.BREVO_API_KEY || '';
+        const rawAdminEmail = process.env.ADMIN_EMAIL || 'computerscience@wrench-wise.com';
+        const rawSenderEmail = process.env.BREVO_SENDER_EMAIL || rawAdminEmail;
+
+        const apiKey = rawApiKey.replace(/[\r\n\s]+/g, '');
+        const adminEmail = rawAdminEmail.replace(/[\r\n\s]+/g, '');
+        const senderEmail = rawSenderEmail.replace(/[\r\n\s]+/g, '');
         
         if (!apiKey) {
             return res.status(500).json({ error: "Server missing BREVO_API_KEY" });
@@ -40,10 +44,12 @@ app.post('/api/send-email', async (req, res) => {
         if (!to_email || !password) {
             return res.status(400).json({ error: "Missing required fields" });
         }
+
+        const cleanToEmail = to_email.replace(/[\r\n\s]+/g, '');
         
         const emailData = {
             sender: { name: "Wrench Wise EmployAI", email: senderEmail },
-            to: [{ email: to_email, name: to_name || "Counselor" }],
+            to: [{ email: cleanToEmail, name: to_name || "Counselor" }],
             subject: "Wrench Wise EmployAI - Account Access Approved",
             htmlContent: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -52,7 +58,7 @@ app.post('/api/send-email', async (req, res) => {
                     <p>Your access to the Wrench Wise EmployAI platform has been permitted.</p>
                     <p>You can now log in using your auto-generated secure credentials:</p>
                     <div style="background: #f1f5f9; padding: 15px; border-radius: 6px; margin: 20px 0;">
-                        <p style="margin: 5px 0;"><strong>Email:</strong> ${to_email}</p>
+                        <p style="margin: 5px 0;"><strong>Email:</strong> ${cleanToEmail}</p>
                         <p style="margin: 5px 0;"><strong>Password:</strong> ${password}</p>
                     </div>
                     <p><em>Please note: You can change your password at any time by logging in and clicking the "Change Password" button in the top navigation bar.</em></p>
@@ -61,7 +67,7 @@ app.post('/api/send-email', async (req, res) => {
             `
         };
 
-        console.log("Attempting to send email via Brevo to:", to_email);
+        console.log("Attempting to send email via Brevo to:", cleanToEmail);
         console.log("Using API Key:", apiKey ? apiKey.substring(0, 15) + "..." : "undefined");
         console.log("Sender Email:", senderEmail);
         
