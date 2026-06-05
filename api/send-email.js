@@ -5,6 +5,7 @@ export default async function handler(req, res) {
 
     const apiKey = process.env.BREVO_API_KEY;
     const adminEmail = process.env.ADMIN_EMAIL || 'computerscience@wrench-wise.com';
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || adminEmail;
     
     if (!apiKey) {
         return res.status(500).json({ error: "Server missing BREVO_API_KEY" });
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
     }
     
     const emailData = {
-        sender: { name: "Wrench Wise EmployAI", email: adminEmail },
+        sender: { name: "Wrench Wise EmployAI", email: senderEmail },
         to: [{ email: to_email, name: to_name || "Counselor" }],
         subject: "Wrench Wise EmployAI - Account Access Approved",
         htmlContent: `

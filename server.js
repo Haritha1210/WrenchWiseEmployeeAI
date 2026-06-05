@@ -25,10 +25,10 @@ app.get('/api/get-gemini-key', (req, res) => {
     res.json({ key: key || null });
 });
 
-// Brevo SMTP Email Endpoint
 app.post('/api/send-email', async (req, res) => {
     const apiKey = process.env.BREVO_API_KEY;
     const adminEmail = process.env.ADMIN_EMAIL || 'computerscience@wrench-wise.com';
+    const senderEmail = process.env.BREVO_SENDER_EMAIL || adminEmail;
     
     if (!apiKey) {
         return res.status(500).json({ error: "Server missing BREVO_API_KEY" });
@@ -41,7 +41,7 @@ app.post('/api/send-email', async (req, res) => {
     }
     
     const emailData = {
-        sender: { name: "Wrench Wise EmployAI", email: adminEmail },
+        sender: { name: "Wrench Wise EmployAI", email: senderEmail },
         to: [{ email: to_email, name: to_name || "Counselor" }],
         subject: "Wrench Wise EmployAI - Account Access Approved",
         htmlContent: `
@@ -63,7 +63,7 @@ app.post('/api/send-email', async (req, res) => {
     try {
         console.log("Attempting to send email via Brevo to:", to_email);
         console.log("Using API Key:", apiKey ? apiKey.substring(0, 15) + "..." : "undefined");
-        console.log("Sender Email:", adminEmail);
+        console.log("Sender Email:", senderEmail);
         
         const response = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
